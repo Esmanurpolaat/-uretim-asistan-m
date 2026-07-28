@@ -1,2 +1,2 @@
-# -retim-asistan-m
+# -üretim-asistan-m
 üretim asistanım projesinin reposu 
