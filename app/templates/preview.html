@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Ön İzleme - Üretim Asistanım</title>
+    <style>
+        /* Genel sayfa tasarımı ve font ayarları */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        /* Ana kutu (container) tasarımı */
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Üst Başlık Bölümü */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Bilgi Kartları Grubu */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Tekil Bilgi Kartı Stili */
+        .stat-card {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        /* Sütun İsimleri Rozetleri */
+        .columns-list {
+            margin-bottom: 30px;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .columns-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 12px;
+        }
+
+        .badges-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .column-badge {
+            background-color: #e2e8f0;
+            color: #334155;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        /* Tablo Tasarımı */
+        .table-responsive {
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #475569;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 14px 18px;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px 18px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 13.5px;
+            white-space: nowrap;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Alt Başlık / Uyarı */
+        .preview-notice {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+
+        /* Butonlar */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sayfa Üst Başlığı -->
+        <div class="header">
+            <h1>Excel Ön İzleme Ekranı</h1>
+                    <div class="btn-group">
+             <!-- Veritabanına kaydetmek için POST isteği gönderen Form ve Buton -->
+             <form action="/imports/save" method="post" style="margin: 0;">
+                 <button type="submit" class="btn btn-primary" style="background-color: #10b981; border: none; cursor: pointer;">
+                     Veritabanına Kaydet ve Güncelle
+                 </button>
+             </form>
+             <a href="/imports/upload" class="btn btn-secondary">Yeni Dosya Yükle</a>
+             <a href="/" class="btn btn-secondary">Ana Sayfaya Dön</a>
+         </div>
+            </div>
+        </div>
+
+        <!-- Dosya ve Hücre İstatistikleri -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Yüklenen Dosya</div>
+                <div class="stat-value">{{ filename }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Toplam Satır Sayısı</div>
+                <div class="stat-value">{{ total_rows }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Toplam Sütun Sayısı</div>
+                <div class="stat-value">{{ total_columns }}</div>
+            </div>
+        </div>
+
+        <!-- Excel Sütun Başlıkları Listesi -->
+        <div class="columns-list">
+            <div class="columns-title">Excel Sütun İsimleri</div>
+            <div class="badges-container">
+                {% for col in columns %}
+                    <span class="column-badge">{{ col }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Tablo Ön İzleme Bilgilendirmesi -->
+        <div class="preview-notice">
+            * Excel dosyasının ilk sayfasındaki verilerin en fazla ilk 20 satırı gösterilmektedir.
+        </div>
+
+        <!-- Ön İzleme Tablosu -->
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        {% for col in columns %}
+                            <th>{{ col }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if preview_data %}
+                        {% for row in preview_data %}
+                            <tr>
+                                {% for col in columns %}
+                                    <!-- Boş değerler (None) için tire (-) işareti gösteriyoruz -->
+                                    <td>{{ row[col] if row[col] is not none else '-' }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="{{ total_columns }}" style="text-align: center; color: #94a3b8; padding: 30px;">
+                                Tabloda gösterilecek veri bulunamadı.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

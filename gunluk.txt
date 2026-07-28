@@ -1,0 +1,127 @@
+YAZILIM MÜHENDİSLİĞİ GÜNLÜĞÜ - ÜRETİM ASİSTANIM PROJESİ
+------------------------------------------------------
+
+Tarih: 22 Temmuz 2026
+Konu: SQLite Veritabanı Tohumlama (Seeding), FastAPI GET /orders Rotası ve Jinja2 Tablo Listeleme
+
+Merhaba! Bu günlükte, yaptığımız tüm değişiklikleri ve yazılım mühendisliği mantığını senin için adım adım açıkladım. Bir 2. sınıf öğrencisi olarak veritabanı (SQL) ve web mimarisine giriş yaptığını düşünerek, kavramları basitleştirerek anlatıyorum.
+
+Yapılan İşlemler ve Mühendislik Açıklamaları:
+
+1. Veritabanına Örnek Veri Ekleme (Database Seeding) - app/seed_data.py
+   - Veritabanı tohumlama (seed), test ve geliştirme aşamasında veritabanını boş bırakmamak için otomatik olarak yapay verilerle doldurma işlemidir.
+   - Bu dosyada "seed_orders()" adında bir fonksiyon oluşturduk.
+   - İlk olarak "SessionLocal" kullanarak SQLite veritabanına bir bağlantı kanalı (session/oturum) açtık.
+   - "db.query(Order).first()" sorgusu ile "orders" tablosunda önceden veri eklenip eklenmediğini kontrol ettik. Eğer tabloda en az 1 kayıt varsa, her çalıştırmada 10 kaydın üst üste eklenmesini (mükerrer kayıt/veri tekrarı) önlemek için fonksiyonu hemen sonlandırdık.
+   - Eğer tablo boşsa, SQLAlchemy ORM modelimizi (models.Order) kullanarak 10 adet yapay sipariş nesnesi oluşturduk. ORM (Object-Relational Mapping) sayesinde "INSERT INTO..." gibi SQL cümleleri yazmadan doğrudan Python nesneleriyle veritabanı kaydı oluşturabiliyoruz.
+   - "db.add_all()" ile siparişleri oturuma ekledik ve "db.commit()" komutu ile veritabanına kalıcı olarak kaydettik.
+   - Kaynak sızıntılarını önlemek için veritabanı oturumunu "finally" bloğunda "db.close()" ile mutlaka kapattık. Bu çok önemli bir en iyi uygulamadır (best practice).
+
+2. FastAPI Rotası Tanımlama - app/main.py
+   - main.py dosyasında, uygulama başlarken "Base.metadata.create_all(bind=engine)" satırının hemen ardından "seed_orders()" fonksiyonumuzu çağırdık. Bu sayede FastAPI uygulaması her başlatıldığında veritabanı kontrol edilecek ve boşsa örnek siparişler otomatik eklenecektir.
+   - "/orders" adresine gelen GET isteklerini karşılamak için yeni bir fonksiyon ekledik: "get_orders(request: Request)"
+   - Bu fonksiyonda yine "SessionLocal()" kullanarak bir oturum başlattık.
+   - "db.query(models.Order).all()" satırı ile SQL dilindeki "SELECT * FROM orders;" sorgusunun ORM karşılığını çalıştırıp tüm siparişleri çektik.
+   - Aldığımız sipariş listesini ve tarayıcı istek nesnesini (request) "orders.html" şablonuna gönderdik.
+
+3. HTML Şablonunu Oluşturma - app/templates/orders.html
+   - Kullanıcıların siparişleri görebilmesi için estetik ve modern tasarıma sahip bir HTML tablosu hazırladık.
+   - Jinja2 şablon motorunun döngü mekanizmasını kullanarak Python'dan gelen siparişleri HTML tablosunda satır satır yazdırdık:
+     * "{% for order in orders %}" ... "{% endfor %}"
+   - Sipariş miktarını binlik ayracı ve iki basamaklı kuruş hanesiyle yazdırmak için "{:,.2f}".format() fonksiyonunu kullandık (Örn: 2,300.50).
+   - "Yeni", "Planlandı", "Üretimde", "Tamamlandı" gibi sipariş durumlarını düz yazı yerine şık renkli rozetler (badges) olarak göstermek için CSS sınıfları tanımladık ve Jinja2 koşul ifadesiyle ("{% if order.status == 'Yeni' %}") dinamik olarak uyguladık.
+   - Sayfanın sol üst köşesine ana sayfaya kolayca geri dönebilmek için şık bir "Ana Sayfaya Dön" butonu ve SVG ikon yerleştirdik.
+
+4. Ana Sayfa Entegrasyonu - app/templates/index.html
+   - Ana sayfada bulunan "Siparişleri Görüntüle" butonunun bağlantı hedefini (href) "href='/orders'" olarak güncelledik. Böylece kullanıcılar bu butona tıklayarak doğrudan yeni oluşturduğumuz sipariş sayfasına geçiş yapabilecekler.
+
+Ek Not (Kütüphane Kurulumu):
+- Sanal ortamınızda (venv) FastAPI, Uvicorn, SQLAlchemy ve Jinja2 kütüphanelerinin yüklü olmadığını tespit ettik (Sanal ortamınız çok temizdi!).
+- Bu kütüphaneleri projenizin düzgün çalışabilmesi için terminal komutuyla sanal ortamınıza kurduk:
+  `.venv\Scripts\python -m pip install fastapi uvicorn sqlalchemy jinja2`
+- Ardından uygulamayı test etmek için geçici olarak uvicorn sunucusunu çalıştırdık. Sistem başarıyla ayağa kalktı ve veritabanı dosyanız (`uretim_asistanim.db`) oluşturulup içerisine 10 yapay sipariş verisi yazıldı. Testten sonra sunucu kapatıldı.
+
+Tarih: 22 Temmuz 2026 - Gelişme Bölüm 2
+Konu: SQLite Şema Güncellemesi, SQL Date Tipi ve Tarih Formatlama (Jinja2 strftime)
+
+Bugün sipariş takip sistemimize çok önemli iki veri alanı ekledik: "estimated_delivery_date" (Tahmini Teslim Tarihi) ve "actual_delivery_date" (Gerçek Teslim Tarihi). 
+
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+
+1. Veritabanı Şeması ve Kilitlenmeler (Schema & Locking)
+   - SQLite veritabanımıza yeni kolonlar eklemek istediğimizde, SQLAlchemy'nin otomatik tablo oluşturma komutu (create_all) mevcut tabloyu güncellemez. Bu yüzden eski veritabanı dosyasını silmemiz gerekti.
+   - Dosyayı silerken "Dosya başka bir işlem tarafından kullanıldığından bu işlem dosyaya erişemiyor" hatası aldık. Bu durum, arka planda çalışan eski Python (uvicorn) süreçlerinin veritabanı dosyasını kilitlemesinden kaynaklanıyordu. Windows komut satırından `taskkill /f /im python.exe` komutu ile kilitleri çözdük ve `del uretim_asistanim.db` diyerek dosyayı temiz bir şekilde sildik.
+
+2. Model ve Tip Dönüşümleri - app/models.py
+   - Python'ın `datetime` modülünden `date` sınıfını ve SQLAlchemy'den `Date` veri tipini içe aktardık.
+   - `Order` modelimize `estimated_delivery_date` ve `actual_delivery_date` alanlarını ekledik. Bu alanlar veritabanında `DATE` tipinde sütunlara dönüştü. `nullable=True` yaparak boş bırakılabilmelerini sağladık.
+
+3. Seed Verilerinin Güncellenmesi - app/seed_data.py
+   - Yapay verilerimizi yeni tarih alanları ile zenginleştirdik.
+   - Gecikmeli teslimatları simüle edebilmek için "Teslim Edildi" durumundaki bazı siparişlerin gerçek teslim tarihini tahmini teslim tarihinden sonraya ayarladık. Henüz teslim edilmeyenlerin gerçek teslim tarihlerini `None` (boş) olarak bıraktık.
+
+4. Arayüz ve Jinja2 Tarih Formatlama - app/templates/orders.html
+   - Tablomuza 2 adet yeni sütun başlığı ve veri hücresi ekledik. Tablonun boş olma durumundaki `colspan` değerini 6'dan 8'e çıkardık.
+   - Python'dan gelen `date` nesnelerini arayüzde şık gösterebilmek için Jinja2 içinde `.strftime('%d.%m.%Y')` metodunu kullanarak `gün.ay.yıl` formatına (Örn: 25.07.2026) dönüştürdük.
+   - Gerçek teslim tarihi olmayan siparişlerde `if...else` yapısıyla "Henüz teslim edilmedi" uyarısını yazdırdık.
+
+Tarih: 23 Temmuz 2026 - Gelişme Bölüm 3
+Konu: Excel Dosyası Yükleme, Pandas Entegrasyonu ve Bellekte Veri Ön İzleme
+
+Bugün projemizin en önemli işlevlerinden biri olan Excel veri yükleme ve ön izleme altyapısını kurduk. Verileri doğrudan veritabanına kaydetmeden önce bellekte işleyip kullanıcıya ön izleme tablosu gösterdik.
+
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+
+1. Kütüphane Kurulumu (Pandas & Openpyxl)
+   - Python ile Excel dosyalarını yüksek performansla okumak için popüler veri analizi kütüphanesi olan `pandas` ve modern Excel formatlarını (.xlsx) destekleyen `openpyxl` kütüphanesini sanal ortamımıza kurduk.
+   - Komut: `.venv\Scripts\python -m pip install pandas openpyxl`
+
+2. Ana Sayfa Güncellemesi - app/templates/index.html
+   - Ana sayfadaki "Excel Yükle" butonunun bağlantısını `/imports/upload` rotasına bağladık.
+
+3. Yükleme Ekranı - app/templates/upload.html
+   - Kullanıcının sadece `.xlsx` ve `.xls` formatlı dosyaları seçmesine olanak sağlayan dosya seçim alanı tasarladık.
+   - Olası dosya seçilmemesi, geçersiz dosya biçimi veya Pandas okuma hataları gibi durumları yakalayarak teknik hata sayfası yerine arayüzde Türkçe hata banner'ları gösterilmesini sağladık.
+
+4. Ön İzleme Ekranı - app/templates/preview.html
+   - Yüklenen dosyanın adını, toplam satır/sütun sayılarını ve Excel'in sütun başlıklarını özet kartlar halinde gösterdik.
+   - Excel dosyasının ilk sayfasındaki ilk 20 satırı listeleyen bir responsive tablo oluşturduk.
+   - Boş hücrelerin (NaN / None) tabloda `-` şeklinde görünmesini sağladık.
+
+5. FastAPI Dosya Alımı ve Pandas İşleme - app/main.py
+   - `/imports/upload` GET rotası ile yükleme sayfasını açtık.
+   - `/imports/preview` POST rotasını oluşturduk. `UploadFile` ve `File(...)` parametrelerini kullanarak yüklenen dosyayı aldık.
+   - Dosyayı herhangi bir klasöre kaydetmeyerek (kalıcı depolama alanı doldurmamak için) `file.file` akışı üzerinden doğrudan bellekte Pandas `pd.read_excel()` fonksiyonuyla okuduk.
+   - Pandas'taki boş verileri `df.where(pd.notnull(df), None)` ile `None` değerine dönüştürdük ki Jinja2 şablonumuzda kolayca ayırt edebilelim.
+   - İlk 20 satırı `df.head(20).to_dict(orient="records")` ile sözlük yapısına dönüştürerek şablona gönderdik.
+
+Ek Rehber: Genel Web Sitesi Yapmanın Mantığı (Temel Kılavuz)
+-----------------------------------------------------------
+
+Bir web sitesi veya web uygulaması yaparken bilmen gereken en temel kavram "Müşteri-Sunucu (Client-Server)" ilişkisidir. Bunu bir restorana benzetebiliriz:
+
+1. İstemci / Müşteri (Client - Ön Yüz / Frontend):
+   - Tarayıcındır (Chrome, Edge, Firefox vb.).
+   - Kullanıcının gördüğü masadır. Burada HTML, CSS ve JavaScript çalışır.
+     * HTML: Masanın yapısıdır (Tabak nerede duracak, çatal nerede - yani butonlar, yazılar).
+     * CSS: Masanın süsüdür (Masa örtüsünün rengi, tabakların tasarımı - yani renkler, yazı tipleri, gölgeler).
+     * JavaScript: Masadaki hareketlerdir (Tuzluğa basınca tuz dökülmesi, garson çağırma düğmesi - yani butona tıklayınca açılan menüler, dinamik hareketler).
+
+2. Sunucu (Server - Arka Yüz / Backend):
+   - Restoranın mutfağıdır. Bizim projemizde bu mutfak "FastAPI" (Python) ile yazılmıştır.
+   - Kullanıcı mutfağı görmez ama tüm yemekler (veriler) orada hazırlanır.
+   - Sunucu, tarayıcıdan gelen istekleri dinler ve mantıksal kararlar verir (Örn: "Kullanıcı sipariş listesini istedi, git veritabanından getir").
+
+3. Veritabanı (Database):
+   - Restoranın kileridir (Bizim projemizde SQLite / uretim_asistanim.db).
+   - Sunucu (aşçı), kilerden malzemeleri (verileri) alır, pişirir (şablona yerleştirir) ve garsonla (HTTP yanıtı) müşteriye gönderir.
+
+HTTP İstekleri (Müşteri ile Mutfak Arasındaki İletişim):
+Müşteri ile mutfak arasındaki sipariş fişlerine "HTTP Metotları" denir. En yaygın ikisi şunlardır:
+- GET (Al/Getir): Tarayıcının sunucudan bir şey istemesidir. Örneğin: "Bana ana sayfayı getir" (GET /) veya "Bana siparişleri listele" (GET /orders). Sunucu buna karşılık bir HTML sayfası döndürür.
+- POST (Gönder/Kaydet): Tarayıcının sunucuya veri göndermesidir. Örneğin: "Ben bilgisayarımdan bu Excel dosyasını seçtim, al bunu işle" (POST /imports/preview) veya kullanıcı adı ve şifreyi sunucuya göndermek.
+
+Özet Yazılım Geliştirme Yaşam Döngüsü (SDLC) Notu:
+Bu yaptığımız çalışma, modern MVC (Model-View-Controller) veya FastAPI'nin önerdiği Model-Template-View mimarisine mükemmel bir örnektir. Veritabanı modellerimizi (M), kullanıcı arayüzümüzü (V / HTML) ve aradaki iş mantığını (C / main.py rotaları) birbirinden izole ederek temiz ve bakımı kolay bir kod yapısı elde ettik.
+
+İyi çalışmalar ve başarılar dilerim! Kodlamaya ve sorgulamaya devam et!

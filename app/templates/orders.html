@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        /* Sayfa genel tasarımı ve font ayarları */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        /* Ana kutu (container) tasarımı */
+        .container {
+            max-width: 1100px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Sayfa başlığı ve üst alan düzeni */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        /* Geri Dön Butonu */
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #4f46e5;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back:hover {
+            color: #3730a3;
+            transform: translateX(-3px);
+        }
+
+        .btn-back svg {
+            margin-right: 8px;
+        }
+
+        /* Tablo Tasarımı */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 16px 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        /* Satırların üzerine gelindiğinde arka planın değişmesi */
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Durum Rozetleri (Badges) */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Durum rengine göre farklı badge stilleri */
+        .badge-yeni {
+            background-color: #92b8db;
+            color: #f4f5f6;
+        }
+
+        .badge-planlandi {
+            background-color: #4ae16f;
+            color: #f5f7f5;
+        }
+
+        .badge-uretimde {
+            background-color: #f14f4f;
+            color: #fcfbfb;
+        }
+
+        .badge-tamamlandi {
+            background-color: #ed8dbf;
+            color: #f3f0f2;
+        }
+
+        /* Veri bulunamadığında gösterilecek mesaj stili */
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Üst Başlık Bölümü -->
+        <div class="header">
+            <h1>Sipariş Takip Paneli</h1>
+            <!-- Ana sayfaya dönüş linki -->
+            <a href="/" class="btn-back">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Ana Sayfaya Dön
+            </a>
+        </div>
+
+        <!-- Tablo Alanı -->
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sipariş No</th>
+                          <th>Kalem No</th> 
+                        <th>Müşteri</th>
+                        <th>Ürün</th>
+                        <th>Miktar</th>
+                        <th>Üretim Hattı</th>
+                        <th>Durum</th>
+                        <th>Tahmini Teslim Tarihi</th>
+                        <th>Gerçek Teslim Tarihi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Jinja2 döngüsü ile veritabanından gelen siparişleri listeliyoruz -->
+                    {% if orders %}
+                        {% for order in orders %}
+                            <tr>
+                                <td><strong>{{ order.order_no }}</strong></td>
+                                                
+                                <td>{{ order.item_no }}</td> <!-- Burası eklendi -->
+                                
+                                ...
+                                <td>{{ order.customer_name }}</td>
+                                <td>{{ order.product_name or '-' }}</td>
+                                <td>
+                                    {% if order.quantity %}
+                                        {{ "{:,.2f}".format(order.quantity) }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ order.production_line or '-' }}</td>
+                                <td>
+                                    <!-- Siparişin durumuna göre dinamik badge sınıfı atıyoruz -->
+                                    {% if order.status == 'Yeni' %}
+                                        <span class="badge badge-yeni">{{ order.status }}</span>
+                                    {% elif order.status == 'Planlandı' %}
+                                        <span class="badge badge-planlandi">{{ order.status }}</span>
+                                    {% elif order.status == 'Üretimde' %}
+                                        <span class="badge badge-uretimde">{{ order.status }}</span>
+                                    {% elif order.status == 'Tamamlandı' or order.status == 'Teslim Edildi' %}
+                                        <span class="badge badge-tamamlandi">{{ order.status }}</span>
+                                    {% else %}
+                                        <span class="badge">{{ order.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <!-- Tahmini teslim tarihi formatlama (gün.ay.yıl) -->
+                                <td>
+                                    {{ order.estimated_delivery_date.strftime('%d.%m.%Y') if order.estimated_delivery_date else '-' }}
+                                </td>
+                                <!-- Gerçek teslim tarihi formatlama. Boşsa 'Henüz teslim edilmedi' yazdırıyoruz -->
+                                <td>
+                                    {{ order.actual_delivery_date.strftime('%d.%m.%Y') if order.actual_delivery_date else 'Henüz teslim edilmedi' }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Tabloda hiç veri yoksa gösterilecek alan (toplam sütun sayısı 8 oldu) -->
+                        <tr>
+                            <td colspan="8" class="no-data">
+                                Kayıtlı sipariş bulunamadı.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+</html>
