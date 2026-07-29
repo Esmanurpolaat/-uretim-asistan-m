@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Eğer 'order' varsa Düzenle, yoksa Yeni Oluştur başlığını gösteriyoruz -->
+    <title>{% if order %}Sipariş Düzenle{% else %}Yeni Sipariş Ekle{% endif %} - Üretim Asistanım</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            margin-bottom: 25px;
+            border-bottom: 2px solid #f0f2f5;
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #1e293b;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        /* Form Grupları */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #475569;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #334155;
+            box-sizing: border-box;
+            transition: border-color 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        /* Salt Okunur (Readonly) Alan Stili */
+        input[readonly] {
+            background-color: #f1f5f9;
+            color: #64748b;
+            cursor: not-allowed;
+        }
+
+        /* Buton Grubu */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3730a3;
+        }
+
+        .btn-secondary {
+            background-color: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background-color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <!-- Dinamik Başlık -->
+            <h1>{% if order %}Sipariş Düzenle (No: {{ order.order_no }}){% else %}Yeni Sipariş Ekle{% endif %}</h1>
+        </div>
+
+        <!-- Eğer sunucudan bir hata mesajı gelirse kırmızı kutuda gösteriyoruz -->
+        {% if error %}
+            <div style="background-color: #fee2e2; color: #ef4444; padding: 12px; border-radius: 8px; font-weight: 600; font-size: 14px; margin-bottom: 20px; border: 1.5px solid #fca5a5;">
+                ⚠️ {{ error }}
+            </div>
+        {% endif %}
+
+        <!-- Formun gönderileceği rotayı dinamik seçiyoruz -->
+        <form action="{% if order %}/orders/{{ order.id }}/edit{% else %}/orders/new{% endif %}" method="post">
+            
+            <!-- Sipariş Numarası -->
+            <div class="form-group">
+                <label for="order_no">Sipariş No</label>
+                <input type="text" id="order_no" name="order_no" required 
+                       value="{{ order.order_no if order else '' }}"
+                       {% if order %}readonly{% endif %}>
+            </div>
+
+            <!-- Kalem Numarası -->
+            <div class="form-group">
+                <label for="item_no">Kalem No</label>
+                <input type="text" id="item_no" name="item_no" required 
+                       value="{{ order.item_no if order else '' }}"
+                       {% if order %}readonly{% endif %}>
+            </div>
+
+            <!-- Müşteri Adı -->
+            <div class="form-group">
+                <label for="customer_name">Müşteri Adı</label>
+                <input type="text" id="customer_name" name="customer_name" required 
+                       value="{{ order.customer_name if order else '' }}">
+            </div>
+
+            <!-- Ürün Adı -->
+            <div class="form-group">
+                <label for="product_name">Ürün Adı</label>
+                <input type="text" id="product_name" name="product_name" required 
+                       value="{{ order.product_name if order else '' }}">
+            </div>
+
+            <!-- Miktar -->
+            <div class="form-group">
+                <label for="quantity">Miktar (Adet/Metre)</label>
+                <input type="number" id="quantity" name="quantity" required 
+                       value="{{ order.quantity if order else '' }}">
+            </div>
+
+            <!-- Üretim Hattı Seçimi -->
+            <div class="form-group">
+                <label for="production_line">Atanan Üretim Hattı</label>
+                <select id="production_line" name="production_line">
+                    <option value="">-- Hat Seçin --</option>
+                    {% for line in lines %}
+                        <option value="{{ line.line_name }}" 
+                                {% if order and order.production_line == line.line_name %}selected{% endif %}>
+                            {{ line.line_name }} (Operatör: {{ line.operator_name or 'Yok' }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Durum Seçimi -->
+            <div class="form-group">
+                <label for="status">Sipariş Durumu</label>
+                <select id="status" name="status" required>
+                    <option value="Yeni" {% if order and order.status == 'Yeni' %}selected{% endif %}>Yeni</option>
+                    <option value="Planlandı" {% if order and order.status == 'Planlandı' %}selected{% endif %}>Planlandı</option>
+                    <option value="Üretimde" {% if order and order.status == 'Üretimde' %}selected{% endif %}>Üretimde</option>
+                    <option value="Tamamlandı" {% if order and order.status == 'Tamamlandı' %}selected{% endif %}>Tamamlandı</option>
+                </select>
+            </div>
+
+            <!-- Tahmini Teslim Tarihi -->
+            <div class="form-group">
+                <label for="estimated_delivery_date">Tahmini Teslim Tarihi</label>
+                <input type="date" id="estimated_delivery_date" name="estimated_delivery_date" required
+                       value="{{ order.estimated_delivery_date.strftime('%Y-%m-%d') if order and order.estimated_delivery_date else '' }}">
+            </div>
+
+            <!-- Gerçek Teslim Tarihi -->
+            <div class="form-group">
+                <label for="actual_delivery_date">Gerçek Teslim Tarihi</label>
+                <input type="date" id="actual_delivery_date" name="actual_delivery_date"
+                       value="{{ order.actual_delivery_date.strftime('%Y-%m-%d') if order and order.actual_delivery_date else '' }}">
+            </div>
+
+            <!-- Butonlar -->
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Kaydet</button>
+                <a href="/orders" class="btn btn-secondary">Vazgeç</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

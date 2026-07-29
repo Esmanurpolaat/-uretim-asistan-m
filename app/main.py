@@ -1,11 +1,11 @@
 # FastAPI uygulamasını oluşturmak için FastAPI ve Request sınıflarını içe aktarıyoruz.
 # Dosya yükleme işlemleri için UploadFile ve File sınıflarını da dahil ediyoruz.
-from fastapi import FastAPI, Request, UploadFile, File
+from fastapi import FastAPI, Request, UploadFile, File, HTTPException, Form
 
 # HTML ve Yönlendirme yanıtları döndürmek için kullanıyoruz.
 from fastapi.responses import HTMLResponse, RedirectResponse
 import os
-from datetime import date
+from datetime import date, datetime
 
 # HTML şablonlarını kullanabilmek için Jinja2Templates'i içe aktarıyoruz.
 from fastapi.templating import Jinja2Templates
@@ -221,7 +221,199 @@ def get_orders(request: Request):
             "orders": orders,
         },
     )
+# Yeni Sipariş Formu Açma Rotası
+@app.get("/orders/new", response_class=HTMLResponse)
+def get_new_order_form(request: Request):
+    db = SessionLocal()
+    try:
+        lines = db.query(models.ProductionLine).all()
+    finally:
+        db.close()
+    return templates.TemplateResponse(
+        request=request,
+        name="order_form.html",
+        context={
+            "request": request,
+            "order": None,
+            "lines": lines
+        }
+    )
 
+# Sipariş Düzenleme Formu Açma Rotası
+@app.get("/orders/{id}/edit", response_class=HTMLResponse)
+def get_edit_order_form(request: Request, id: int):
+    db = SessionLocal()
+    try:
+        order = db.query(models.Order).filter(models.Order.id == id).first()
+        lines = db.query(models.ProductionLine).all()
+        if not order:
+            raise HTTPException(status_code=404, detail="Sipariş bulunamadı.")
+    finally:
+        db.close()
+    return templates.TemplateResponse(
+        request=request,
+        name="order_form.html",
+        context={
+            "request": request,
+            "order": order,
+            "lines": lines
+        }
+    )
+
+# Yeni Sipariş Kaydetme Rotası (POST)
+@app.post("/orders/new")
+def post_new_order(
+    request: Request,
+    order_no: str = Form(...),
+    item_no: str = Form(...),
+    customer_name: str = Form(...),
+    product_name: str = Form(...),
+    quantity: float = Form(...),
+    production_line: str = Form(None),
+    status: str = Form(...),
+    estimated_delivery_date: str = Form(...),
+    actual_delivery_date: str = Form(None)
+):
+    db = SessionLocal()
+    try:
+        # 1. Sipariş No ve Kalem No benzersizlik kontrolü
+        existing_order = db.query(models.Order).filter(
+            models.Order.order_no == order_no.strip(),
+            models.Order.item_no == item_no.strip()
+        ).first()
+        
+        if existing_order:
+            lines = db.query(models.ProductionLine).all()
+            return templates.TemplateResponse(
+                request=request,
+                name="order_form.html",
+                context={
+                    "request": request,
+                    "order": None,
+                    "lines": lines,
+                    "error": f"'{order_no}' ve Kalem '{item_no}' numaralı sipariş zaten kayıtlı!"
+                }
+            )
+            
+        # 2. Tarih formatlarını python date nesnelerine dönüştürüyoruz
+        est_date = datetime.strptime(estimated_delivery_date, "%Y-%m-%d").date()
+        act_date = None
+        if actual_delivery_date and actual_delivery_date.strip():
+            act_date = datetime.strptime(actual_delivery_date, "%Y-%m-%d").date()
+            
+        # 3. Yeni Sipariş modelini oluşturuyoruz ve veritabanına ekliyoruz
+        new_order = models.Order(
+            order_no=order_no.strip(),
+            item_no=item_no.strip(),
+            customer_name=customer_name.strip(),
+            product_name=product_name.strip() if product_name else None,
+            quantity=quantity,
+            production_line=production_line.strip() if production_line else None,
+            status=status.strip(),
+            estimated_delivery_date=est_date,
+            actual_delivery_date=act_date
+        )
+        db.add(new_order)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        lines = db.query(models.ProductionLine).all()
+        return templates.TemplateResponse(
+            request=request,
+            name="order_form.html",
+            context={
+                "request": request,
+                "order": None,
+                "lines": lines,
+                "error": f"Sipariş kaydedilirken bir hata oluştu: {str(e)}"
+            }
+        )
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/orders", status_code=303)
+
+# Sipariş Güncelleme Rotası (POST)
+@app.post("/orders/{id}/edit")
+def post_edit_order(
+    request: Request,
+    id: int,
+    customer_name: str = Form(...),
+    product_name: str = Form(...),
+    quantity: float = Form(...),
+    production_line: str = Form(None),
+    status: str = Form(...),
+    estimated_delivery_date: str = Form(...),
+    actual_delivery_date: str = Form(None)
+):
+    db = SessionLocal()
+    try:
+        # 1. Siparişi veritabanından çekiyoruz
+        order = db.query(models.Order).filter(models.Order.id == id).first()
+        if not order:
+            raise HTTPException(status_code=404, detail="Sipariş bulunamadı.")
+            
+        # 2. İş Akışı (Durum Geçişleri) Kontrolü (Adım 5)
+        # Geçerli durum geçiş haritasını tanımlıyoruz
+        VALID_TRANSITIONS = {
+            "Yeni": ["Yeni", "Planlandı"],
+            "Planlandı": ["Yeni", "Planlandı", "Üretimde"],
+            "Üretimde": ["Planlandı", "Üretimde", "Tamamlandı"],
+            "Tamamlandı": ["Tamamlandı"]
+        }
+        
+        current_status = order.status
+        target_status = status.strip()
+        
+        # Eğer durum değişmişse ve bu değişim geçersizse hata verip durduruyoruz
+        if current_status != target_status:
+            allowed_next = VALID_TRANSITIONS.get(current_status, [current_status])
+            if target_status not in allowed_next:
+                lines = db.query(models.ProductionLine).all()
+                return templates.TemplateResponse(
+                    request=request,
+                    name="order_form.html",
+                    context={
+                        "request": request,
+                        "order": order,
+                        "lines": lines,
+                        "error": f"Hatalı Durum Geçişi! '{current_status}' durumundaki bir sipariş doğrudan '{target_status}' yapılamaz. Geçilebilecek durumlar: {', '.join(allowed_next)}"
+                    }
+                )
+        
+        # 3. Tarih dönüşümlerini yapıyoruz
+        est_date = datetime.strptime(estimated_delivery_date, "%Y-%m-%d").date()
+        act_date = None
+        if actual_delivery_date and actual_delivery_date.strip():
+            act_date = datetime.strptime(actual_delivery_date, "%Y-%m-%d").date()
+            
+        # 4. Sipariş bilgilerini güncelliyoruz
+        order.customer_name = customer_name.strip()
+        order.product_name = product_name.strip() if product_name else None
+        order.quantity = quantity
+        order.production_line = production_line.strip() if production_line else None
+        order.status = target_status
+        order.estimated_delivery_date = est_date
+        order.actual_delivery_date = act_date
+        
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        lines = db.query(models.ProductionLine).all()
+        return templates.TemplateResponse(
+            request=request,
+            name="order_form.html",
+            context={
+                "request": request,
+                "order": order,
+                "lines": lines,
+                "error": f"Güncelleme hatası: {str(e)}"
+            }
+        )
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/orders", status_code=303)
 
 # Excel dosyasının yükleneceği arayüzü gösteren GET rotası.
 @app.get(
