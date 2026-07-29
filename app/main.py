@@ -553,7 +553,14 @@ def get_production_lines(request: Request):
             # Bunlar veritabanına kaydedilmez; yalnızca HTML'e gönderilir.
             line.active_load = active_load
             line.occupancy_rate = round(occupancy_rate, 1)
-
+            # Bu hatta atanmış ve henüz tamamlanmamış (aktif) siparişlerin listesini çekiyoruz
+            active_orders = db.query(models.Order).filter(
+                models.Order.production_line == line.line_name,
+                models.Order.status.in_(["Yeni", "Planlandı", "Üretimde"])
+            ).all()
+            
+            # Sipariş listesini arayüze göndermek için makine nesnemize ekliyoruz
+            line.active_orders = active_orders
     finally:
         # İşlem tamamlanınca veritabanı bağlantısını kapatıyoruz.
         db.close()

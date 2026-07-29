@@ -67,7 +67,7 @@
             gap: 16px;
         }
 
-        /* Yatay Makine Kart Tasarımı (3 Kolonlu Grid) */
+        /* Yatay Makine Kart Tasarımı */
         .line-card {
             background: white;
             border: 1px solid #e2e8f0;
@@ -75,12 +75,17 @@
             padding: 20px 28px;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.03), 0 2px 4px -2px rgb(0 0 0 / 0.03);
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            
-            /* Kartı soldan sağa 3 ana bölüme ayırıyoruz */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Kartın üst bölümü (3 Kolonlu Grid) */
+        .line-card-main {
             display: grid;
             grid-template-columns: 1.2fr 1.5fr 2.2fr;
             align-items: center;
             gap: 24px;
+            width: 100%;
         }
 
         /* Üzerine gelindiğinde sağa kayma efekti */
@@ -213,10 +218,9 @@
 
         /* 📱 Mobil Cihazlar İçin Duyarlı Tasarım (Responsive) */
         @media (max-width: 900px) {
-            .line-card {
+            .line-card-main {
                 grid-template-columns: 1fr;
                 gap: 16px;
-                padding: 20px;
             }
             .section-info, .section-progress {
                 border-left: none;
@@ -257,47 +261,80 @@
                     {% endif %}
 
                     <div class="line-card">
-                        <!-- 1. Sütun: Hat Kodu ve Operatör Bilgisi -->
-                        <div class="card-section section-operator">
-                            <span class="line-badge">{{ line.line_name }}</span>
-                            <div class="operator-info">
-                                <div class="avatar" style="background-color: {% if color_class == 'bg-red' %}#fee2e2{% elif color_class == 'bg-orange' %}#fef3c7{% else %}#dbeafe{% endif %}; color: {% if color_class == 'bg-red' %}#ef4444{% elif color_class == 'bg-orange' %}#d97706{% else %}#2563eb{% endif %};">
-                                    {{ line.operator_name[0] if line.operator_name else '?' }}
+                        <!-- Kartın Üst Bölümü (3 Sütun) -->
+                        <div class="line-card-main">
+                            <!-- 1. Sütun: Hat Kodu ve Operatör Bilgisi -->
+                            <div class="card-section section-operator">
+                                <span class="line-badge">{{ line.line_name }}</span>
+                                <div class="operator-info">
+                                    <div class="avatar" style="background-color: {% if color_class == 'bg-red' %}#fee2e2{% elif color_class == 'bg-orange' %}#fef3c7{% else %}#dbeafe{% endif %}; color: {% if color_class == 'bg-red' %}#ef4444{% elif color_class == 'bg-orange' %}#d97706{% else %}#2563eb{% endif %};">
+                                        {{ line.operator_name[0] if line.operator_name else '?' }}
+                                    </div>
+                                    <span class="operator-name">{{ line.operator_name or 'Atama Yapılmadı' }}</span>
                                 </div>
-                                <span class="operator-name">{{ line.operator_name or 'Atama Yapılmadı' }}</span>
+                            </div>
+
+                            <!-- 2. Sütun: Kapasite ve Yük Verileri -->
+                            <div class="card-section section-info">
+                                <div class="info-row">
+                                    <span class="info-label">Planlama Kapasitesi:</span>
+                                    <span class="info-value">{{ "{:,}".format(line.capacity) if line.capacity else '-' }} Adet/Metre</span>
+                                </div>
+                                <div class="info-row">
+                                    <span class="info-label">Biriken Sipariş Yükü:</span>
+                                    <span class="info-value">{{ "{:,.1f}".format(line.active_load) }} Adet/Metre</span>
+                                </div>
+                            </div>
+
+                            <!-- 3. Sütun: İlerleme Çubuğu ve Yüzde -->
+                            <div class="card-section section-progress">
+                                <div class="progress-title-row">
+                                    <span class="progress-label" style="color: {% if color_class == 'bg-red' %}#ef4444{% elif color_class == 'bg-orange' %}#d97706{% else %}#10b981{% endif %};">
+                                        {% if color_class == 'bg-red' %}🔴 AŞIRI YÜKLÜ
+                                        {% elif color_class == 'bg-orange' %}🟡 YOĞUN YÜKLÜ
+                                        {% else %}🟢 NORMAL YÜK
+                                        {% endif %}
+                                    </span>
+                                    <span class="progress-percent" style="color: {% if color_class == 'bg-red' %}#b91c1c{% elif color_class == 'bg-orange' %}#b45309{% else %}#047857{% endif %};">
+                                        %{{ line.occupancy_rate }}
+                                    </span>
+                                </div>
+                                
+                                <!-- İlerleme Çubuğu -->
+                                <div class="progress-container">
+                                    <div class="progress-bar {{ color_class }}" style="width: {{ [line.occupancy_rate, 100] | min }}%;"></div>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- 2. Sütun: Kapasite ve Yük Verileri -->
-                        <div class="card-section section-info">
-                            <div class="info-row">
-                                <span class="info-label">Planlama Kapasitesi:</span>
-                                <span class="info-value">{{ "{:,}".format(line.capacity) if line.capacity else '-' }} Adet/Metre</span>
+                        <!-- Kartın Alt Bölümü: Hat Detaylı Sipariş Görünümü -->
+                        <div style="margin-top: 16px; border-top: 1px dashed #e2e8f0; padding-top: 16px; width: 100%;">
+                            <div style="font-size: 11px; font-weight: 800; color: #64748b; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;">
+                                Hattaki Aktif İş Yükü Detayı
                             </div>
-                            <div class="info-row">
-                                <span class="info-label">Biriken Sipariş Yükü:</span>
-                                <span class="info-value">{{ "{:,.1f}".format(line.active_load) }} Adet/Metre</span>
-                            </div>
-                        </div>
-
-                        <!-- 3. Sütun: İlerleme Çubuğu ve Yüzde -->
-                        <div class="card-section section-progress">
-                            <div class="progress-title-row">
-                                <span class="progress-label" style="color: {% if color_class == 'bg-red' %}#ef4444{% elif color_class == 'bg-orange' %}#d97706{% else %}#10b981{% endif %};">
-                                    {% if color_class == 'bg-red' %}🔴 AŞIRI YÜKLÜ
-                                    {% elif color_class == 'bg-orange' %}🟡 YOĞUN YÜKLÜ
-                                    {% else %}🟢 NORMAL YÜK
-                                    {% endif %}
-                                </span>
-                                <span class="progress-percent" style="color: {% if color_class == 'bg-red' %}#b91c1c{% elif color_class == 'bg-orange' %}#b45309{% else %}#047857{% endif %};">
-                                    %{{ line.occupancy_rate }}
-                                </span>
-                            </div>
-                            
-                            <!-- İlerleme Çubuğu -->
-                            <div class="progress-container">
-                                <div class="progress-bar {{ color_class }}" style="width: {{ [line.occupancy_rate, 100] | min }}%;"></div>
-                            </div>
+                            {% if line.active_orders %}
+                                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                                    {% for o in line.active_orders %}
+                                        {% set dot_color = "#3b82f6" %} {# Yeni = Mavi #}
+                                        {% if o.status == 'Planlandı' %}
+                                            {% set dot_color = "#10b981" %} {# Planlandı = Yeşil #}
+                                        {% elif o.status == 'Üretimde' %}
+                                            {% set dot_color = "#ef4444" %} {# Üretimde = Kırmızı #}
+                                        {% endif %}
+                                        
+                                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; color: #334155;">
+                                            <span style="font-weight: 700; color: #1e293b;">{{ o.order_no }}</span>
+                                            <span style="color: #64748b;">({{ "{:,.0f}".format(o.quantity) }} mt)</span>
+                                            <span style="width: 7px; height: 7px; border-radius: 50%; background-color: {{ dot_color }}; display: inline-block;"></span>
+                                            <span style="font-weight: 600; font-size: 12px; color: #475569;">{{ o.status }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div style="font-size: 13px; color: #94a3b8; font-style: italic;">
+                                    Hatta atanmış aktif sipariş bulunmamaktadır.
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
