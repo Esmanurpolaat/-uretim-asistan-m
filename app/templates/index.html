@@ -396,7 +396,7 @@
         <!-- 🏠 SOL MENÜ (Sidebar) -->
         <div class="sidebar" id="sidebar">
             <div class="sidebar-brand">
-                <span class="brand-text">Mesaş Panel</span>
+                <span class="brand-text">Üretim Asistanım</span>
                 <button class="toggle-btn" type="button" onclick="toggleSidebar()">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -557,7 +557,7 @@
                                         <td><strong>{{ order.order_no }}</strong></td>
                                         <td>{{ order.item_no }}</td>
                                         <td>{{ order.customer_name }}</td>
-                                        <td>{{ order.product_name or '-' }}</td>
+                                        <td>{{ order.product.product_name if order.product else '-' }}</td>
                                         <td>{{ "{:,.2f}".format(order.quantity) if order.quantity else '-' }}</td>
                                         <td>{{ order.production_line or '-' }}</td>
                                         <td>

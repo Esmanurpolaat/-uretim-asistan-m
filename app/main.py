@@ -27,6 +27,7 @@ from app.database import Base, engine, SessionLocal
 # Otomatik sipariş verisi ekleme fonksiyonunu içe aktarıyoruz.
 from app.seed_data import seed_orders
 from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 
 
 # models.py içerisinde tanımlanan tabloları kontrol eder.
@@ -108,7 +109,7 @@ def home(
         ).count()
                 # --- RİSK VE GECİKME ANALİZİ BAŞLANGICI ---
         # Tamamlanmamış (Yeni, Planlandı, Üretimde) ve tahmini teslim tarihi olan siparişleri çekiyoruz
-        active_orders_list = db.query(models.Order).filter(
+        active_orders_list = db.query(models.Order).options(joinedload(models.Order.product)).filter(
             models.Order.status.in_(["Yeni", "Planlandı", "Üretimde"]),
             models.Order.estimated_delivery_date != None
         ).all()
@@ -166,7 +167,7 @@ def home(
                 status_counts[status] = count
                 
         # Tablo: Eklenen en son 5 sipariş
-        last_orders = db.query(models.Order).order_by(models.Order.id.desc()).limit(5).all()
+        last_orders = db.query(models.Order).options(joinedload(models.Order.product)).order_by(models.Order.id.desc()).limit(5).all()
         
     finally:
         # Oturumu kapatıyoruz
@@ -207,7 +208,7 @@ def get_orders(request: Request):
     db = SessionLocal()
     try:
         # Veritabanındaki tüm sipariş (Order) kayıtlarını sorgulayıp getiriyoruz.
-        orders = db.query(models.Order).all()
+        orders = db.query(models.Order).options(joinedload(models.Order.product)).all()
     finally:
         # İşlem tamamlandığında veritabanı oturumunu kapatıyoruz.
         db.close()
@@ -227,6 +228,7 @@ def get_new_order_form(request: Request):
     db = SessionLocal()
     try:
         lines = db.query(models.ProductionLine).all()
+        products = db.query(models.Product).filter(models.Product.is_active == True).all()
     finally:
         db.close()
     return templates.TemplateResponse(
@@ -235,7 +237,8 @@ def get_new_order_form(request: Request):
         context={
             "request": request,
             "order": None,
-            "lines": lines
+            "lines": lines,
+            "products": products
         }
     )
 
@@ -246,6 +249,7 @@ def get_edit_order_form(request: Request, id: int):
     try:
         order = db.query(models.Order).filter(models.Order.id == id).first()
         lines = db.query(models.ProductionLine).all()
+        products = db.query(models.Product).filter(models.Product.is_active == True).all()
         if not order:
             raise HTTPException(status_code=404, detail="Sipariş bulunamadı.")
     finally:
@@ -256,7 +260,8 @@ def get_edit_order_form(request: Request, id: int):
         context={
             "request": request,
             "order": order,
-            "lines": lines
+            "lines": lines,
+            "products": products
         }
     )
 
@@ -267,8 +272,15 @@ def post_new_order(
     order_no: str = Form(...),
     item_no: str = Form(...),
     customer_name: str = Form(...),
-    product_name: str = Form(...),
+    product_id: int = Form(...),
     quantity: float = Form(...),
+    width: float = Form(None),
+    grammage: float = Form(None),
+    unit_price: float = Form(0.0),
+    currency: str = Form("TRY"),
+    market_type: str = Form("Yurtiçi"),
+    sales_rep: str = Form(None),
+    priority: str = Form("Orta"),
     production_line: str = Form(None),
     status: str = Form(...),
     estimated_delivery_date: str = Form(...),
@@ -284,6 +296,7 @@ def post_new_order(
         
         if existing_order:
             lines = db.query(models.ProductionLine).all()
+            products = db.query(models.Product).filter(models.Product.is_active == True).all()
             return templates.TemplateResponse(
                 request=request,
                 name="order_form.html",
@@ -291,6 +304,7 @@ def post_new_order(
                     "request": request,
                     "order": None,
                     "lines": lines,
+                    "products": products,
                     "error": f"'{order_no}' ve Kalem '{item_no}' numaralı sipariş zaten kayıtlı!"
                 }
             )
@@ -306,8 +320,15 @@ def post_new_order(
             order_no=order_no.strip(),
             item_no=item_no.strip(),
             customer_name=customer_name.strip(),
-            product_name=product_name.strip() if product_name else None,
+            product_id=product_id,
             quantity=quantity,
+            width=width,
+            grammage=grammage,
+            unit_price=unit_price,
+            currency=currency.strip(),
+            market_type=market_type.strip(),
+            sales_rep=sales_rep.strip() if sales_rep else None,
+            priority=priority.strip(),
             production_line=production_line.strip() if production_line else None,
             status=status.strip(),
             estimated_delivery_date=est_date,
@@ -318,6 +339,7 @@ def post_new_order(
     except Exception as e:
         db.rollback()
         lines = db.query(models.ProductionLine).all()
+        products = db.query(models.Product).filter(models.Product.is_active == True).all()
         return templates.TemplateResponse(
             request=request,
             name="order_form.html",
@@ -325,6 +347,7 @@ def post_new_order(
                 "request": request,
                 "order": None,
                 "lines": lines,
+                "products": products,
                 "error": f"Sipariş kaydedilirken bir hata oluştu: {str(e)}"
             }
         )
@@ -339,8 +362,15 @@ def post_edit_order(
     request: Request,
     id: int,
     customer_name: str = Form(...),
-    product_name: str = Form(...),
+    product_id: int = Form(...),
     quantity: float = Form(...),
+    width: float = Form(None),
+    grammage: float = Form(None),
+    unit_price: float = Form(0.0),
+    currency: str = Form("TRY"),
+    market_type: str = Form("Yurtiçi"),
+    sales_rep: str = Form(None),
+    priority: str = Form("Orta"),
     production_line: str = Form(None),
     status: str = Form(...),
     estimated_delivery_date: str = Form(...),
@@ -370,6 +400,7 @@ def post_edit_order(
             allowed_next = VALID_TRANSITIONS.get(current_status, [current_status])
             if target_status not in allowed_next:
                 lines = db.query(models.ProductionLine).all()
+                products = db.query(models.Product).filter(models.Product.is_active == True).all()
                 return templates.TemplateResponse(
                     request=request,
                     name="order_form.html",
@@ -377,6 +408,7 @@ def post_edit_order(
                         "request": request,
                         "order": order,
                         "lines": lines,
+                        "products": products,
                         "error": f"Hatalı Durum Geçişi! '{current_status}' durumundaki bir sipariş doğrudan '{target_status}' yapılamaz. Geçilebilecek durumlar: {', '.join(allowed_next)}"
                     }
                 )
@@ -389,8 +421,15 @@ def post_edit_order(
             
         # 4. Sipariş bilgilerini güncelliyoruz
         order.customer_name = customer_name.strip()
-        order.product_name = product_name.strip() if product_name else None
+        order.product_id = product_id
         order.quantity = quantity
+        order.width = width
+        order.grammage = grammage
+        order.unit_price = unit_price
+        order.currency = currency.strip()
+        order.market_type = market_type.strip()
+        order.sales_rep = sales_rep.strip() if sales_rep else None
+        order.priority = priority.strip()
         order.production_line = production_line.strip() if production_line else None
         order.status = target_status
         order.estimated_delivery_date = est_date
@@ -400,6 +439,7 @@ def post_edit_order(
     except Exception as e:
         db.rollback()
         lines = db.query(models.ProductionLine).all()
+        products = db.query(models.Product).filter(models.Product.is_active == True).all()
         return templates.TemplateResponse(
             request=request,
             name="order_form.html",
@@ -407,6 +447,7 @@ def post_edit_order(
                 "request": request,
                 "order": order,
                 "lines": lines,
+                "products": products,
                 "error": f"Güncelleme hatası: {str(e)}"
             }
         )
@@ -601,6 +642,15 @@ def post_excel_save():
         estimated_delivery_keys = ["Tahmini Teslim Tarihi", "Termin", "Teslim Tarihi", "estimated_delivery_date"]
         actual_delivery_keys = ["Gerçek Teslim Tarihi", "actual_delivery_date", "Actual Delivery Date"]
 
+        # Yeni Alan Eşlemeleri (En, Gramaj, Fiyat vb.)
+        width_keys = ["En", "Genişlik", "width", "Width", "En (cm)"]
+        grammage_keys = ["Gramaj", "grammage", "Grammage", "Gramaj (g/m²)"]
+        unit_price_keys = ["Birim Fiyat", "Fiyat", "unit_price", "Unit Price", "Price"]
+        currency_keys = ["Döviz", "Para Birimi", "currency", "Currency"]
+        market_type_keys = ["Pazar", "Pazar Türü", "market_type", "Market Type"]
+        sales_rep_keys = ["Satış Temsilcisi", "Satışçı", "sales_rep", "Sales Rep", "Sales Representative"]
+        priority_keys = ["Öncelik", "priority", "Priority"]
+
         # Satırdaki verileri esnek başlık eşleşmesine göre okuyan yardımcı fonksiyon.
         def get_val(row, keys, default=None):
             for k in keys:
@@ -642,6 +692,34 @@ def post_excel_save():
 
             new_status = get_val(row, status_keys, "Yeni")
 
+            # ÜRÜN BULMA VEYA OTOMATİK KATALOĞA EKLEME MANTIĞI
+            prod_name_val = get_val(row, product_name_keys)
+            product_id_val = None
+            if prod_name_val:
+                prod_name_val = str(prod_name_val).strip()
+                # Veritabanında bu isimde ürün var mı?
+                product_obj = db.query(models.Product).filter(models.Product.product_name == prod_name_val).first()
+                
+                # Yoksa otomatik oluşturuyoruz
+                if not product_obj:
+                    product_count = db.query(models.Product).count()
+                    base_code = f"URN-AUTO{product_count + 1:03d}"
+                    # Benzersiz kod kontrolü (mükerrer kod olmaması için)
+                    while db.query(models.Product).filter(models.Product.product_code == base_code).first():
+                        product_count += 1
+                        base_code = f"URN-AUTO{product_count + 1:03d}"
+                    
+                    product_obj = models.Product(
+                        product_code=base_code,
+                        product_name=prod_name_val,
+                        product_group="Otomatik",
+                        is_active=True
+                    )
+                    db.add(product_obj)
+                    db.flush() # ID almak için veritabanını tetikliyoruz
+                
+                product_id_val = product_obj.id
+
             if existing_order:
                 # 1. Kural: Durum ilk kez "Tamamlandı" oluyorsa tamamlanma tarihini bugünün tarihi yapıyoruz.
                 if new_status == "Tamamlandı":
@@ -651,11 +729,21 @@ def post_excel_save():
                 # Mevcut kaydı güncelliyoruz.
                 existing_order.status = new_status
                 existing_order.customer_name = get_val(row, customer_name_keys, existing_order.customer_name)
-                existing_order.product_name = get_val(row, product_name_keys, existing_order.product_name)
+                if product_id_val is not None:
+                    existing_order.product_id = product_id_val
                 existing_order.quantity = get_val(row, quantity_keys, existing_order.quantity)
                 existing_order.production_line = get_val(row, production_line_keys, existing_order.production_line)
                 existing_order.estimated_delivery_date = parse_date(get_val(row, estimated_delivery_keys, existing_order.estimated_delivery_date))
                 existing_order.actual_delivery_date = parse_date(get_val(row, actual_delivery_keys, existing_order.actual_delivery_date))
+                
+                # Yeni veriler varsa mevcut kaydı güncelliyoruz
+                existing_order.width = get_val(row, width_keys, existing_order.width)
+                existing_order.grammage = get_val(row, grammage_keys, existing_order.grammage)
+                existing_order.unit_price = get_val(row, unit_price_keys, existing_order.unit_price)
+                existing_order.currency = get_val(row, currency_keys, existing_order.currency)
+                existing_order.market_type = get_val(row, market_type_keys, existing_order.market_type)
+                existing_order.sales_rep = get_val(row, sales_rep_keys, existing_order.sales_rep)
+                existing_order.priority = get_val(row, priority_keys, existing_order.priority)
                 
             else:
                 # EĞER YOKSA: Yeni kayıt oluşturuyoruz.
@@ -667,8 +755,15 @@ def post_excel_save():
                     order_no=order_no,
                     item_no=item_no,
                     customer_name=get_val(row, customer_name_keys),
-                    product_name=get_val(row, product_name_keys),
+                    product_id=product_id_val,
                     quantity=get_val(row, quantity_keys),
+                    width=get_val(row, width_keys),
+                    grammage=get_val(row, grammage_keys),
+                    unit_price=get_val(row, unit_price_keys, 0.0),
+                    currency=get_val(row, currency_keys, "TRY"),
+                    market_type=get_val(row, market_type_keys, "Yurtiçi"),
+                    sales_rep=get_val(row, sales_rep_keys),
+                    priority=get_val(row, priority_keys, "Orta"),
                     production_line=get_val(row, production_line_keys),
                     status=new_status,
                     estimated_delivery_date=parse_date(get_val(row, estimated_delivery_keys)),

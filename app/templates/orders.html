@@ -193,7 +193,7 @@
                                 
                                 ...
                                 <td>{{ order.customer_name }}</td>
-                                <td>{{ order.product_name or '-' }}</td>
+                                <td>{{ order.product.product_name if order.product else '-' }}</td>
                                 <td>
                                     {% if order.quantity %}
                                         {{ "{:,.2f}".format(order.quantity) }}

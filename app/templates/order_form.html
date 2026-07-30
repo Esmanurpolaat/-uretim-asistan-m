@@ -14,7 +14,7 @@
         }
 
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 50px auto;
             padding: 30px;
             background: white;
@@ -35,9 +35,19 @@
             font-weight: 700;
         }
 
-        /* Form Grupları */
+        /* Form Grid ve Grupları */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 5px;
+        }
+
+        .form-group-full {
+            grid-column: span 2;
         }
 
         label {
@@ -78,7 +88,7 @@
         .btn-group {
             display: flex;
             gap: 15px;
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         .btn {
@@ -111,6 +121,15 @@
         .btn-secondary:hover {
             background-color: #cbd5e1;
         }
+
+        @media (max-width: 640px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            .form-group-full {
+                grid-column: span 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -129,87 +148,152 @@
 
         <!-- Formun gönderileceği rotayı dinamik seçiyoruz -->
         <form action="{% if order %}/orders/{{ order.id }}/edit{% else %}/orders/new{% endif %}" method="post">
-            
-            <!-- Sipariş Numarası -->
-            <div class="form-group">
-                <label for="order_no">Sipariş No</label>
-                <input type="text" id="order_no" name="order_no" required 
-                       value="{{ order.order_no if order else '' }}"
-                       {% if order %}readonly{% endif %}>
-            </div>
+            <div class="form-grid">
+                
+                <!-- Sipariş Numarası -->
+                <div class="form-group">
+                    <label for="order_no">Sipariş No</label>
+                    <input type="text" id="order_no" name="order_no" required 
+                           value="{{ order.order_no if order else '' }}"
+                           {% if order %}readonly{% endif %}>
+                </div>
 
-            <!-- Kalem Numarası -->
-            <div class="form-group">
-                <label for="item_no">Kalem No</label>
-                <input type="text" id="item_no" name="item_no" required 
-                       value="{{ order.item_no if order else '' }}"
-                       {% if order %}readonly{% endif %}>
-            </div>
+                <!-- Kalem Numarası -->
+                <div class="form-group">
+                    <label for="item_no">Kalem No</label>
+                    <input type="text" id="item_no" name="item_no" required 
+                           value="{{ order.item_no if order else '' }}"
+                           {% if order %}readonly{% endif %}>
+                </div>
 
-            <!-- Müşteri Adı -->
-            <div class="form-group">
-                <label for="customer_name">Müşteri Adı</label>
-                <input type="text" id="customer_name" name="customer_name" required 
-                       value="{{ order.customer_name if order else '' }}">
-            </div>
+                <!-- Müşteri Adı -->
+                <div class="form-group">
+                    <label for="customer_name">Müşteri Adı</label>
+                    <input type="text" id="customer_name" name="customer_name" required 
+                           value="{{ order.customer_name if order else '' }}">
+                </div>
 
-            <!-- Ürün Adı -->
-            <div class="form-group">
-                <label for="product_name">Ürün Adı</label>
-                <input type="text" id="product_name" name="product_name" required 
-                       value="{{ order.product_name if order else '' }}">
-            </div>
+                <!-- Satış Temsilcisi -->
+                <div class="form-group">
+                    <label for="sales_rep">Satış Temsilcisi</label>
+                    <input type="text" id="sales_rep" name="sales_rep" 
+                           value="{{ order.sales_rep if order and order.sales_rep else '' }}">
+                </div>
 
-            <!-- Miktar -->
-            <div class="form-group">
-                <label for="quantity">Miktar (Adet/Metre)</label>
-                <input type="number" id="quantity" name="quantity" required 
-                       value="{{ order.quantity if order else '' }}">
-            </div>
+                <!-- Ürün Seçimi (Dropdown) -->
+                <div class="form-group">
+                    <label for="product_id">Ürün</label>
+                    <select id="product_id" name="product_id" required>
+                        <option value="">-- Ürün Seçin --</option>
+                        {% for product in products %}
+                            <option value="{{ product.id }}" {% if order and order.product_id == product.id %}selected{% endif %}>
+                                {{ product.product_code }} - {{ product.product_name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
 
-            <!-- Üretim Hattı Seçimi -->
-            <div class="form-group">
-                <label for="production_line">Atanan Üretim Hattı</label>
-                <select id="production_line" name="production_line">
-                    <option value="">-- Hat Seçin --</option>
-                    {% for line in lines %}
-                        <option value="{{ line.line_name }}" 
-                                {% if order and order.production_line == line.line_name %}selected{% endif %}>
-                            {{ line.line_name }} (Operatör: {{ line.operator_name or 'Yok' }})
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
+                <!-- Miktar -->
+                <div class="form-group">
+                    <label for="quantity">Miktar (Adet/Metre)</label>
+                    <input type="number" step="any" id="quantity" name="quantity" required 
+                           value="{{ order.quantity if order else '' }}">
+                </div>
 
-            <!-- Durum Seçimi -->
-            <div class="form-group">
-                <label for="status">Sipariş Durumu</label>
-                <select id="status" name="status" required>
-                    <option value="Yeni" {% if order and order.status == 'Yeni' %}selected{% endif %}>Yeni</option>
-                    <option value="Planlandı" {% if order and order.status == 'Planlandı' %}selected{% endif %}>Planlandı</option>
-                    <option value="Üretimde" {% if order and order.status == 'Üretimde' %}selected{% endif %}>Üretimde</option>
-                    <option value="Tamamlandı" {% if order and order.status == 'Tamamlandı' %}selected{% endif %}>Tamamlandı</option>
-                </select>
-            </div>
+                <!-- En (cm) -->
+                <div class="form-group">
+                    <label for="width">En (cm)</label>
+                    <input type="number" step="any" id="width" name="width" 
+                           value="{{ order.width if order and order.width else '' }}">
+                </div>
 
-            <!-- Tahmini Teslim Tarihi -->
-            <div class="form-group">
-                <label for="estimated_delivery_date">Tahmini Teslim Tarihi</label>
-                <input type="date" id="estimated_delivery_date" name="estimated_delivery_date" required
-                       value="{{ order.estimated_delivery_date.strftime('%Y-%m-%d') if order and order.estimated_delivery_date else '' }}">
-            </div>
+                <!-- Gramaj (g/m²) -->
+                <div class="form-group">
+                    <label for="grammage">Gramaj (g/m²)</label>
+                    <input type="number" step="any" id="grammage" name="grammage" 
+                           value="{{ order.grammage if order and order.grammage else '' }}">
+                </div>
 
-            <!-- Gerçek Teslim Tarihi -->
-            <div class="form-group">
-                <label for="actual_delivery_date">Gerçek Teslim Tarihi</label>
-                <input type="date" id="actual_delivery_date" name="actual_delivery_date"
-                       value="{{ order.actual_delivery_date.strftime('%Y-%m-%d') if order and order.actual_delivery_date else '' }}">
-            </div>
+                <!-- Birim Fiyat -->
+                <div class="form-group">
+                    <label for="unit_price">Birim Fiyat</label>
+                    <input type="number" step="any" id="unit_price" name="unit_price" required 
+                           value="{{ order.unit_price if order else '0.0' }}">
+                </div>
 
-            <!-- Butonlar -->
-            <div class="btn-group">
-                <button type="submit" class="btn btn-primary">Kaydet</button>
-                <a href="/orders" class="btn btn-secondary">Vazgeç</a>
+                <!-- Döviz -->
+                <div class="form-group">
+                    <label for="currency">Döviz</label>
+                    <select id="currency" name="currency" required>
+                        <option value="TRY" {% if order and order.currency == 'TRY' %}selected{% endif %}>TRY</option>
+                        <option value="USD" {% if order and order.currency == 'USD' %}selected{% endif %}>USD</option>
+                        <option value="EUR" {% if order and order.currency == 'EUR' %}selected{% endif %}>EUR</option>
+                    </select>
+                </div>
+
+                <!-- Pazar Türü -->
+                <div class="form-group">
+                    <label for="market_type">Pazar Türü</label>
+                    <select id="market_type" name="market_type" required>
+                        <option value="Yurtiçi" {% if order and order.market_type == 'Yurtiçi' or not order %}selected{% endif %}>Yurtiçi</option>
+                        <option value="Yurtdışı" {% if order and order.market_type == 'Yurtdışı' %}selected{% endif %}>Yurtdışı</option>
+                    </select>
+                </div>
+
+                <!-- Öncelik -->
+                <div class="form-group">
+                    <label for="priority">Öncelik</label>
+                    <select id="priority" name="priority" required>
+                        <option value="Düşük" {% if order and order.priority == 'Düşük' %}selected{% endif %}>Düşük</option>
+                        <option value="Orta" {% if order and order.priority == 'Orta' or not order %}selected{% endif %}>Orta</option>
+                        <option value="Yüksek" {% if order and order.priority == 'Yüksek' %}selected{% endif %}>Yüksek</option>
+                    </select>
+                </div>
+
+                <!-- Üretim Hattı Seçimi -->
+                <div class="form-group">
+                    <label for="production_line">Atanan Üretim Hattı</label>
+                    <select id="production_line" name="production_line">
+                        <option value="">-- Hat Seçin --</option>
+                        {% for line in lines %}
+                            <option value="{{ line.line_name }}" 
+                                    {% if order and order.production_line == line.line_name %}selected{% endif %}>
+                                {{ line.line_name }} (Operatör: {{ line.operator_name or 'Yok' }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Durum Seçimi -->
+                <div class="form-group">
+                    <label for="status">Sipariş Durumu</label>
+                    <select id="status" name="status" required>
+                        <option value="Yeni" {% if order and order.status == 'Yeni' %}selected{% endif %}>Yeni</option>
+                        <option value="Planlandı" {% if order and order.status == 'Planlandı' %}selected{% endif %}>Planlandı</option>
+                        <option value="Üretimde" {% if order and order.status == 'Üretimde' %}selected{% endif %}>Üretimde</option>
+                        <option value="Tamamlandı" {% if order and order.status == 'Tamamlandı' %}selected{% endif %}>Tamamlandı</option>
+                    </select>
+                </div>
+
+                <!-- Tahmini Teslim Tarihi -->
+                <div class="form-group">
+                    <label for="estimated_delivery_date">Tahmini Teslim Tarihi</label>
+                    <input type="date" id="estimated_delivery_date" name="estimated_delivery_date" required
+                           value="{{ order.estimated_delivery_date.strftime('%Y-%m-%d') if order and order.estimated_delivery_date else '' }}">
+                </div>
+
+                <!-- Gerçek Teslim Tarihi -->
+                <div class="form-group">
+                    <label for="actual_delivery_date">Gerçek Teslim Tarihi</label>
+                    <input type="date" id="actual_delivery_date" name="actual_delivery_date"
+                           value="{{ order.actual_delivery_date.strftime('%Y-%m-%d') if order and order.actual_delivery_date else '' }}">
+                </div>
+
+                <!-- Butonlar -->
+                <div class="btn-group form-group-full">
+                    <button type="submit" class="btn btn-primary">Kaydet</button>
+                    <a href="/orders" class="btn btn-secondary">Vazgeç</a>
+                </div>
             </div>
         </form>
     </div>
