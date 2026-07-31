@@ -171,15 +171,21 @@
                 <thead>
                     <tr>
                         <th>Sipariş No</th>
-                          <th>Kalem No</th> 
+                        <th>Kalem No</th> 
                         <th>Müşteri</th>
+                        <th>Satışçı</th>
+                        <th>Pazar</th>
                         <th>Ürün</th>
+                        <th>En / Gramaj</th>
                         <th>Miktar</th>
+                        <th>Birim Fiyat</th>
+                        <th>Toplam Tutar</th>
+                        <th>Öncelik</th>
                         <th>Üretim Hattı</th>
                         <th>Durum</th>
                         <th>Tahmini Teslim Tarihi</th>
                         <th>Gerçek Teslim Tarihi</th>
-                                        <th>İşlemler</th>
+                        <th>İşlemler</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -188,17 +194,47 @@
                         {% for order in orders %}
                             <tr>
                                 <td><strong>{{ order.order_no }}</strong></td>
-                                                
-                                <td>{{ order.item_no }}</td> <!-- Burası eklendi -->
-                                
-                                ...
+                                <td>{{ order.item_no }}</td>
                                 <td>{{ order.customer_name }}</td>
+                                <td>{{ order.sales_rep or '-' }}</td>
+                                <td>
+                                    {% if order.market_type == 'Yurtdışı' %}
+                                        <span style="color: #1d57d4; font-weight: 600;">Yurtdışı</span>
+                                    {% else %}
+                                        <span style="color: #43bb67;">Yurtiçi</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ order.product.product_name if order.product else '-' }}</td>
+                                <td>
+                                    {% if order.width or order.grammage %}
+                                        {{ "{:.0f}".format(order.width) if order.width else '-' }} cm / 
+                                        {{ "{:.0f}".format(order.grammage) if order.grammage else '-' }} g/m²
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
                                 <td>
                                     {% if order.quantity %}
                                         {{ "{:,.2f}".format(order.quantity) }}
                                     {% else %}
                                         -
+                                    {% endif %}
+                                </td>
+                                <td>{{ "{:,.2f}".format(order.unit_price) }} {{ order.currency }}</td>
+                                <td>
+                                    {% if order.quantity and order.unit_price %}
+                                        <strong>{{ "{:,.2f}".format(order.quantity * order.unit_price) }} {{ order.currency }}</strong>
+                                    {% else %}
+                                        0.00 {{ order.currency }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if order.priority == 'Yüksek' %}
+                                        <span style="color: #e11d48; font-weight: 700;">Yüksek</span>
+                                    {% elif order.priority == 'Orta' %}
+                                        <span style="color: #d97706; font-weight: 600;">Orta</span>
+                                    {% else %}
+                                        <span style="color: #475569;">Düşük</span>
                                     {% endif %}
                                 </td>
                                 <td>{{ order.production_line or '-' }}</td>
@@ -238,9 +274,9 @@
                             </tr>
                         {% endfor %}
                     {% else %}
-                        <!-- Tabloda hiç veri yoksa gösterilecek alan (toplam sütun sayısı 8 oldu) -->
+                        <!-- Tabloda hiç veri yoksa gösterilecek alan -->
                         <tr>
-                            <td colspan="10" class="no-data">
+                            <td colspan="16" class="no-data">
                                 Kayıtlı sipariş bulunamadı.
                             </td>
                         </tr>

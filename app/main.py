@@ -42,13 +42,13 @@ seed_orders()
 # FastAPI uygulamasını oluşturuyoruz.
 # title bilgisi otomatik API dokümantasyonunda gösterilir.
 app = FastAPI(
-    title="Üretim Asistanım",
+    title="Üretim Asistanım", #title yani başlık cnm 
 )
 
 
 # HTML dosyalarımızın bulunduğu klasörü FastAPI'ye tanıtıyoruz.
 templates = Jinja2Templates(
-    directory="app/templates",
+    directory="app/templates",# burda da klasör tanımladık cnm html kısmı burası işte  inja da pyhtondaki elemanları htmle aktarmaya yarayan şey 
 )
 
 
@@ -64,8 +64,8 @@ templates = Jinja2Templates(
 # Ana Sayfa / Dashboard (Yönetici Paneli) Rotası.
 @app.get("/", response_class=HTMLResponse)
 def home(
-    request: Request,
-    start_date: str | None = None,  # Tarayıcıdan gelecek başlangıç tarihi (Örn: '2026-07-01')
+    request: Request, #request, kullanıcı bir sayfayı açtığında tarayıcının sunucuya gönderdiği talebin bütün bilgilerini Python içerisinde tutan değişkendi
+    start_date: str | None = None,  # Tarayıcıdan gelecek başlangıç tarihi (Örn: '2026-07-01')  bide boş kalabilir None=none olduğu için 
     end_date: str | None = None,    # Tarayıcıdan gelecek bitiş tarihi
     date_type: str | None = "estimated_delivery_date" # Hangi tarihe göre filtreleneceği
 ):
@@ -98,14 +98,14 @@ def home(
         ).count()
         
         # 3. Dashboard Kartı: Tamamlanan siparişlerin sayısı
-        completed_orders = db.query(models.Order).filter(
+        completed_orders = db.query(models.Order).filter( # veritabanında sorgu yapıyoruz queryi o yüzden kullanıyoruz tamamalanan siparişleri getirmek için.
             models.Order.status == "Tamamlandı"
         ).count()
         
         # 4. Yeni Dashboard Kartı: Bugün ilk kez tamamlanan siparişler
         # completion_date alanı bugünün tarihine eşit olanları sayıyoruz.
-        completed_today = db.query(models.Order).filter(
-            models.Order.completion_date == date.today()
+        completed_today = db.query(models.Order).filter( # önce değişkenin adını atadık sonra da değişkenin içinde olucak veriyi sorguladık
+            models.Order.completion_date == date.today() #bugun tamamlanma koşulu 
         ).count()
                 # --- RİSK VE GECİKME ANALİZİ BAŞLANGICI ---
         # Tamamlanmamış (Yeni, Planlandı, Üretimde) ve tahmini teslim tarihi olan siparişleri çekiyoruz
@@ -786,3 +786,189 @@ def post_excel_save():
 
     # Başarıyla kaydedildikten sonra kullanıcıyı Sipariş Takip Paneline (/orders) yönlendiriyoruz.
     return RedirectResponse(url="/orders", status_code=303)
+
+# crud kısmının get rotasını kelyeceğiz şuan#
+@app.get("/products", response_class=HTMLResponse)
+def get_products(request:Request):
+    db=SessionLocal()
+    try:
+        products= db.query(models.Product).all()
+    finally:
+        db.close()
+    return templates.TemplateResponse(
+        
+            request=request,
+            name="products.html" ,
+            context ={ 
+                "title":"Ürün Kataloğu - Üretim Asistanım",
+                "products":products,
+            }
+        )
+# burda da düzenleme yeni ürün kısmı için get rotası oluşturuyorum #
+@app.get("/products/new", response_class=HTMLResponse) 
+def get_new_product_form(request: Request):
+    return templates.TemplateResponse(
+      request=request,
+      name="product_form.html",
+      context={
+          "title":"Yeni Ürün Ekle - Üretim Asistanım",
+          "product":None
+      }
+    )
+#post rotasını ekliyoruz yeni ürün ekleme güncelleme  post veri gödermeye yarar get çekmeye 
+@app.post("/products/new")
+def post_new_product(#bu fonksiyon html formundan gönderilen bilgileri teslim alır 
+    request: Request,#tarayıcıdan gelen isteği belirtiyo
+    product_code: str = Form(...), #form(...) formdan gelecek bu alanların zorunlu olduğu anlamına gelir 
+    product_name: str = Form(...),
+    product_group: str | None = Form(None),# form(none)forma göderilmezse o alanı none yapabilirsin demek 
+    standard_width: float | None = Form(None), #| none da direkt boş olabilir anlamında 
+    grammage: float | None = Form(None),
+    unit: str = Form("Metre"), #boşssa metre ver 
+    eligible_lines: str | None = Form(None),
+):
+    db = SessionLocal()
+    try:#hata olursa doğru düzgün çalıştırılsın diye 
+        existing = db.query(models.Product).filter( #existing daha önce aynı isimde veri var mıydı nın kontrolunu sağlıyor 
+            #filter kısmı da neye göre arama yapacağını verir db.query de zaten sorgulama yapcam models.productta dıyor 
+            models.Product.product_code == product_code.strip()#strip metinin balındaki ve sonundaki gereksiz bilgileri siler 
+        ).first()
+
+        if existing: # ürün zaten varsa 
+            return templates.TemplateResponse(
+                request=request,
+                name="product_form.html",
+                context={
+                    "title": "Yeni Ürün Ekle - Üretim Asistanım",
+                    "product": None,
+                    "error": f"'{product_code}' ürün kodu zaten kayıtlı!"#gönderilen hata kısmı burası 
+                }
+            )
+
+        # Yeni ürün nesnesi oluşturuyoruz
+        new_product = models.Product(
+            product_code=product_code.strip(),
+            product_name=product_name.strip(),
+            product_group=product_group.strip() if product_group else None, #Product group doluysa boşluklarını temizle;boşsa none kaydet 
+            standard_width=standard_width,
+            grammage=grammage,
+            unit=unit,
+            eligible_lines=eligible_lines.strip() if eligible_lines else None,
+            is_active=True #eklenen ürün başlangıçta aktif oluşturulur 
+
+        )
+        db.add(new_product)
+        db.commit() #yapılan değişikliği kesin olarak veritabanına kaydet
+    except Exception as e: #try içinde herhanhi bir hata olusursa pyhton direkt buraya geçer 
+        db.rollback() #hata olursa tamamlanmış verileri geri al 
+        print(f"Ürün kaydetme hatası: {e}")
+        return templates.TemplateResponse(
+            request=request,
+            name="product_form.html",
+            context={
+                "title": "Yeni Ürün Ekle - Üretim Asistanım",
+                "product": None,
+                "error": "Ürün kaydedilirken sistemsel bir hata oluştu!"
+            }
+        )
+    finally:
+        db.close()
+
+    return RedirectResponse(url="/products", status_code=303) #ürün başarıyla kaydedilirse kullanıcı ürünler sayfasına yönlendirilir 
+
+@app.get("/products/{id}/edit", response_class=HTMLResponse)
+def get_edit_product_form(id: int, request: Request):
+    db = SessionLocal()
+    try:
+        # first kısmı da şey anlamında sorgudan sonraki ilk sonucu getir
+        product = db.query(models.Product).filter(models.Product.id == id).first()
+    finally:
+        db.close()
+
+    return templates.TemplateResponse(
+        request=request,
+        name="product_form.html",
+        context={
+            "title": "Ürün Düzenle - Üretim Asistanım",
+            "product": product
+        }
+    )
+
+
+# get/products/5/edit 
+# idsi 5 olan ürünü düzenlemek için, mevcut bilgileri forma doldurur
+# formu kullanıcıya gönderir
+# post product 5 edit 5 numaralı üründe yapılan değişiklikleri alır o veriyi bulur
+# yeni değerlerle günceller veritabanına kaydeder
+
+# bu kısmın çalışma mantığı sırasıyla
+# form bilgileri fonksiyonuna gelir, veritabanı açılır, ürün için başlangıç değerleri verilir
+# tryla riskli işlemler başlatılır, idye göre urun aranır, ürün bulunmuş mu kontrol edilir, ürün kodu başkasında var mı kontrol edilir
+# aynı kod başka üründe varsa form geri açılır çakışma yoksa ürün alanları değiştirilir,
+# değişiklikler kaydedilir, hata çıkarsa except çalışır
+
+# şimdi de get yaptığımız güncellemeyi post yapacağız
+@app.post("/products/{id}/edit")
+def post_edit_product(
+    id: int,
+    request: Request,
+    product_code: str = Form(...),
+    product_name: str = Form(...),
+    product_group: str | None = Form(None),  # bu kısımlar aslında html formundaki verileri alıyor 
+    standard_width: float | None = Form(None),
+    grammage: float | None = Form(None),
+    unit: str = Form("Metre"),
+    eligible_lines: str | None = Form(None),
+    is_active: bool = Form(True)
+):
+    db = SessionLocal()
+    product = None
+
+    try:
+        product = db.query(models.Product).filter(models.Product.id == id).first()
+        if not product:
+            raise HTTPException(status_code=404, detail="Ürün Bulunamadı") 
+
+        existing = db.query(models.Product).filter(
+            models.Product.product_code == product_code.strip(),
+            models.Product.id != id
+        ).first()
+
+        if existing:
+            return templates.TemplateResponse(
+                request=request,
+                name="product_form.html",
+                context={
+                    "title": "Ürün Düzenle - Üretim Asistanım",
+                    "product": product,
+                    "error": f"'{product_code}' Ürün kodu başka bir ürüne ait!"
+                }
+            )
+
+        # alınan veriyi mevcut ürüne aktarır
+        product.product_code = product_code.strip()
+        product.product_name = product_name.strip()
+        product.product_group = product_group.strip() if product_group else None
+        product.standard_width = standard_width
+        product.grammage = grammage
+        product.unit = unit
+        product.eligible_lines = eligible_lines.strip() if eligible_lines else None
+        product.is_active = is_active
+        
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Ürün düzenleme hatası: {e}")
+        return templates.TemplateResponse(
+            request=request,
+            name="product_form.html",
+            context={
+                "title": "Ürün Düzenle - Üretim Asistanım",
+                "product": product,
+                "error": "Ürün güncellenirken bir hata oluştu!"
+            }
+        )
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/products", status_code=303) 
