@@ -971,4 +971,263 @@ def post_edit_product(
     finally:
         db.close()
         
-    return RedirectResponse(url="/products", status_code=303) 
+
+    return RedirectResponse(url="/products", status_code=303)
+
+# burda da hammadde katalogu ksımının veritabanından get isteklerini yapıyoruz api bağlantısı ile  
+@app.get("/raw-materials", response_class=HTMLResponse)
+def get_raw_materials(request: Request):
+    db = SessionLocal()
+    try: 
+        raw_materials = db.query(models.RawMaterial).all()
+    finally:
+        db.close()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="raw_materials.html",
+        context={
+            "title": "Hammadde Kataloğu - Üretim Asistanım",
+            "raw_materials": raw_materials
+        }
+    )
+
+@app.get("/raw-materials/new", response_class=HTMLResponse)
+def get_raw_material_form(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="raw_material_form.html",
+        context={
+            "title": "Yeni Hammadde Ekle - Üretim Asistanım",
+            "raw_material": None
+        }
+    )
+
+@app.post("/raw-materials/new")
+def post_raw_material(
+    request: Request,
+    material_code: str = Form(...),
+    material_name: str = Form(...),
+    material_type: str | None = Form(None),
+    unit: str = Form("Kg"),
+    min_stock: float = Form(0.0),
+    safety_stock: float = Form(0.0),
+    min_order_qty: float = Form(0.0),
+    lead_time: int = Form(0)
+):
+    db = SessionLocal()
+    try: 
+        existing = db.query(models.RawMaterial).filter(
+            models.RawMaterial.material_code == material_code.strip()
+        ).first()
+        
+        if existing:
+            return templates.TemplateResponse(
+                request=request,
+                name="raw_material_form.html",
+                context={
+                    "title": "Yeni Hammadde Ekle - Üretim Asistanım",
+                    "raw_material": None,
+                    "error": f"'{material_code}' hammadde kodu zaten kayıtlı!"
+                }
+            )
+            
+        new_material = models.RawMaterial(
+            material_code=material_code.strip(),
+            material_name=material_name.strip(),
+            material_type=material_type.strip() if material_type else None,
+            unit=unit,
+            min_stock=min_stock,
+            safety_stock=safety_stock,
+            min_order_qty=min_order_qty,
+            lead_time=lead_time,
+            is_active=True
+        )
+        db.add(new_material)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Hammadde kaydetme hatası: {e}")
+        return templates.TemplateResponse(
+            request=request,
+            name="raw_material_form.html",
+            context={
+                "title": "Yeni Hammadde Ekle - Üretim Asistanım",
+                "raw_material": None,
+                "error": "Hammadde kaydedilirken sistemsel bir hata oluştu!"
+            }
+        )
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/raw-materials", status_code=303)
+
+#üst kısımda hammadde stok kısmının yeni olusturma get se post rotalarını koymustum sımdı işe düzenleme kısmının get ve post rotalarını eklicem
+@app.get("/raw-materials/{id}/edit", response_class=HTMLResponse)
+def get_edit_raw_material_form(id: int, request: Request):
+    db = SessionLocal()
+    try:
+        raw_material = db.query(models.RawMaterial).filter(models.RawMaterial.id == id).first()
+    finally:
+        db.close()
+
+    return templates.TemplateResponse(
+        request=request,
+        name="raw_material_form.html",
+        context={
+            "title": "Hammadde Düzenle - Üretim Asistanım",
+            "raw_material": raw_material
+        }
+    )
+
+#hammadde duzenlenme kısmının post isteği
+@app.post("/raw-materials/{id}/edit")
+def post_edit_raw_material(
+    id: int,
+    request: Request,
+    material_code: str = Form(...),
+    material_name: str = Form(...),
+    material_type: str | None = Form(None),
+    unit: str = Form("Kg"),
+    min_stock: float = Form(0.0),
+    safety_stock: float = Form(0.0),
+    min_order_qty: float = Form(0.0),
+    lead_time: int = Form(0),
+    is_active: bool = Form(True)
+):
+    db = SessionLocal()
+    raw_material = None
+    try:
+        raw_material = db.query(models.RawMaterial).filter(models.RawMaterial.id == id).first()
+        if not raw_material:
+            raise HTTPException(status_code=404, detail="Hammadde bulunamadı")
+
+        existing = db.query(models.RawMaterial).filter(
+            models.RawMaterial.material_code == material_code.strip(),
+            models.RawMaterial.id != id
+        ).first()
+
+        if existing:
+            return templates.TemplateResponse(
+                request=request,
+                name="raw_material_form.html",
+                context={
+                    "title": "Hammadde Düzenle - Üretim Asistanım",
+                    "raw_material": raw_material,
+                    "error": f"'{material_code}' hammadde kodu başka bir hammaddeye ait!"
+                }
+            )
+
+        #kanka burda da yeni bilgileri veriypruz 
+        raw_material.material_code = material_code.strip() #strip sadece metinler(string) için geçerli olan bir komuttur 
+        raw_material.material_name = material_name.strip()
+        raw_material.material_type = material_type.strip() if material_type else None
+        raw_material.unit = unit
+        raw_material.min_stock = min_stock
+        raw_material.safety_stock = safety_stock
+        raw_material.min_order_qty = min_order_qty
+        raw_material.lead_time = lead_time
+        raw_material.is_active = is_active
+
+        db.commit()
+    except Exception as e: #herhangi bir hata varsa bu bloğu çalıştır 
+        db.rollback()
+        print(f"Hammadde düzenleme hatası: {e}")
+        return templates.TemplateResponse(
+            request=request,
+            name="raw_material_form.html",
+            context={
+                "title": "Hammadde Düzenle - Üretim Asistanım",
+                "raw_material": raw_material,
+                "error": "Hammadde güncellenirken bir hata oluştu!"
+                #kanka burda tekrar form kısmını veriyoruz ki hata olsutugunda bos ekran değil tekrar form gelsin bize 
+                #zaten templates html de formu çizdiren kısım bizde o yzüden tekrar templates yazıyoruz 
+            }
+        )
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/raw-materials", status_code=303)
+# Depo stok takip sayfası (GET)
+@app.get("/stocks", response_class=HTMLResponse)
+def get_warehouse_stocks(request: Request):
+    db = SessionLocal()
+    try:
+        # joinedload kullanarak stoklarla birlikte ilişkili hammadde bilgilerini de tek sorguda çekiyoruz
+        stocks = db.query(models.WarehouseStock).options(
+            joinedload(models.WarehouseStock.raw_material)
+        ).all()
+        
+        # Stok durumunu kontrol etmek amacıyla hammadde emniyet stoğu kontrolü için tüm aktif hammaddeleri de çekiyoruz
+        raw_materials = db.query(models.RawMaterial).filter(models.RawMaterial.is_active == True).all()
+    finally:
+        db.close()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="stocks.html",
+        context={
+            "title": "Depo Stok Takibi - Üretim Asistanım",
+            "stocks": stocks,
+            "raw_materials": raw_materials
+        }
+    )
+# Yeni stok giriş formu (GET)
+@app.get("/stocks/new", response_class=HTMLResponse)
+def get_new_stock_form(request: Request):
+    db = SessionLocal()
+    try:
+        # Formda hammadde seçebilmek için aktif hammaddeleri çekiyoruz
+        raw_materials = db.query(models.RawMaterial).filter(models.RawMaterial.is_active == True).all()
+    finally:
+        db.close()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="stock_form.html",
+        context={
+            "title": "Yeni Stok Girişi - Üretim Asistanım",
+            "raw_materials": raw_materials
+        }
+    )
+
+# Yeni stok kaydetme işlemi (POST)
+@app.post("/stocks/new")
+def post_new_stock(
+    request: Request,
+    raw_material_id: int = Form(...),
+    warehouse_name: str = Form(...),
+    lot_number: str = Form(...),
+    physical_stock: float = Form(0.0)
+):
+    db = SessionLocal()
+    try:
+        # İlk girişte rezerve stok sıfır, kullanılabilir stok ise fiziksel stoğa eşittir
+        new_stock = models.WarehouseStock(
+            raw_material_id=raw_material_id,
+            warehouse_name=warehouse_name.strip(),
+            lot_number=lot_number.strip().upper(),  # Lot numaralarını standart olması için büyük harfe çeviriyoruz
+            physical_stock=physical_stock,
+            reserved_stock=0.0,
+            usable_stock=physical_stock
+        )
+        db.add(new_stock)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Stok kaydetme hatası: {e}")
+        # Hata durumunda formu aktif hammaddelerle birlikte tekrar yüklüyoruz
+        raw_materials = db.query(models.RawMaterial).filter(models.RawMaterial.is_active == True).all()
+        return templates.TemplateResponse(
+            request=request,
+            name="stock_form.html",
+            context={
+                "title": "Yeni Stok Girişi - Üretim Asistanım",
+                "raw_materials": raw_materials,
+                "error": "Stok kaydedilirken sistemsel bir hata oluştu!"
+            }
+        )
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/stocks", status_code=303)

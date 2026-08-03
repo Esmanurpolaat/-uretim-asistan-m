@@ -15,9 +15,10 @@
 
         /* Ana kutu (container) tasarımı */
         .container {
-            max-width: 1100px;
-            margin: 50px auto;
-            padding: 30px;
+            max-width: 95%;
+            width: 1420px;
+            margin: 30px auto;
+            padding: 20px;
             background: white;
             border-radius: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
@@ -28,9 +29,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
             border-bottom: 2px solid #f0f2f5;
-            padding-bottom: 20px;
+            padding-bottom: 15px;
         }
 
         h1 {
@@ -76,18 +77,18 @@
             background-color: #f8fafc;
             color: #64748b;
             font-weight: 600;
-            font-size: 13px;
+            font-size: 11.5px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 16px 20px;
+            padding: 12px 10px;
             border-bottom: 2px solid #e2e8f0;
         }
 
         td {
-            padding: 16px 20px;
+            padding: 12px 10px;
             border-bottom: 1px solid #e2e8f0;
             color: #334155;
-            font-size: 14px;
+            font-size: 12.5px;
         }
 
         /* Satırların üzerine gelindiğinde arka planın değişmesi */
@@ -170,21 +171,17 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Sipariş No</th>
-                        <th>Kalem No</th> 
+                        <th>Sipariş / Kalem</th>
                         <th>Müşteri</th>
-                        <th>Satışçı</th>
-                        <th>Pazar</th>
+                        <th>Satışçı (Pazar)</th>
                         <th>Ürün</th>
                         <th>En / Gramaj</th>
                         <th>Miktar</th>
-                        <th>Birim Fiyat</th>
-                        <th>Toplam Tutar</th>
+                        <th>Fiyat / Toplam</th>
                         <th>Öncelik</th>
                         <th>Üretim Hattı</th>
                         <th>Durum</th>
-                        <th>Tahmini Teslim Tarihi</th>
-                        <th>Gerçek Teslim Tarihi</th>
+                        <th>Termin / Teslim</th>
                         <th>İşlemler</th>
                     </tr>
                 </thead>
@@ -193,16 +190,13 @@
                     {% if orders %}
                         {% for order in orders %}
                             <tr>
-                                <td><strong>{{ order.order_no }}</strong></td>
-                                <td>{{ order.item_no }}</td>
+                                <td><strong>{{ order.order_no }}</strong> <span style="color: #64748b; font-size: 11px;">({{ order.item_no }})</span></td>
                                 <td>{{ order.customer_name }}</td>
-                                <td>{{ order.sales_rep or '-' }}</td>
                                 <td>
-                                    {% if order.market_type == 'Yurtdışı' %}
-                                        <span style="color: #1d57d4; font-weight: 600;">Yurtdışı</span>
-                                    {% else %}
-                                        <span style="color: #43bb67;">Yurtiçi</span>
-                                    {% endif %}
+                                    {{ order.sales_rep or '-' }} <br>
+                                    <span style="color: {% if order.market_type == 'Yurtdışı' %}#2563eb{% else %}#64748b{% endif %}; font-size: 11px; font-weight: 600;">
+                                        ({% if order.market_type == 'Yurtdışı' %}İhracat{% else %}İç Piyasa{% endif %})
+                                    </span>
                                 </td>
                                 <td>{{ order.product.product_name if order.product else '-' }}</td>
                                 <td>
@@ -220,13 +214,15 @@
                                         -
                                     {% endif %}
                                 </td>
-                                <td>{{ "{:,.2f}".format(order.unit_price) }} {{ order.currency }}</td>
                                 <td>
-                                    {% if order.quantity and order.unit_price %}
-                                        <strong>{{ "{:,.2f}".format(order.quantity * order.unit_price) }} {{ order.currency }}</strong>
-                                    {% else %}
-                                        0.00 {{ order.currency }}
-                                    {% endif %}
+                                    {{ "{:,.2f}".format(order.unit_price) }} {{ order.currency }} <br>
+                                    <span style="font-size: 11.5px; font-weight: 700; color: #0f172a;">
+                                        {% if order.quantity and order.unit_price %}
+                                            {{ "{:,.2f}".format(order.quantity * order.unit_price) }} {{ order.currency }}
+                                        {% else %}
+                                            0.00 {{ order.currency }}
+                                        {% endif %}
+                                    </span>
                                 </td>
                                 <td>
                                     {% if order.priority == 'Yüksek' %}
@@ -252,13 +248,12 @@
                                         <span class="badge">{{ order.status }}</span>
                                     {% endif %}
                                 </td>
-                                <!-- Tahmini teslim tarihi formatlama (gün.ay.yıl) -->
+                                <!-- Tahmini ve Gerçek teslim tarihleri birleşik -->
                                 <td>
-                                    {{ order.estimated_delivery_date.strftime('%d.%m.%Y') if order.estimated_delivery_date else '-' }}
-                                </td>
-                                <!-- Gerçek teslim tarihi formatlama. Boşsa 'Henüz teslim edilmedi' yazdırıyoruz -->
-                                <td>
-                                    {{ order.actual_delivery_date.strftime('%d.%m.%Y') if order.actual_delivery_date else 'Henüz teslim edilmedi' }}
+                                    {{ order.estimated_delivery_date.strftime('%d.%m.%Y') if order.estimated_delivery_date else '-' }} <br>
+                                    <span style="font-size: 11px; color: #64748b;">
+                                        {{ order.actual_delivery_date.strftime('%d.%m.%Y') if order.actual_delivery_date else 'Bekliyor' }}
+                                    </span>
                                 </td>
                                 <!-- Düzenleme Butonu Hücresi -->
                                 <td>
@@ -276,7 +271,7 @@
                     {% else %}
                         <!-- Tabloda hiç veri yoksa gösterilecek alan -->
                         <tr>
-                            <td colspan="16" class="no-data">
+                            <td colspan="12" class="no-data">
                                 Kayıtlı sipariş bulunamadı.
                             </td>
                         </tr>
