@@ -1231,3 +1231,209 @@ def post_new_stock(
         db.close()
         
     return RedirectResponse(url="/stocks", status_code=303)
+
+@app.get("/recipes", response_class=HTMLResponse)
+def get_recipes(request: Request):
+    db = SessionLocal()
+    try:
+        #joinedload kullancaz ortak bağlantı için 
+        recipes = db.query(models.Recipe).options(
+            joinedload(models.Recipe.product),
+            joinedload(models.Recipe.raw_material)  
+        ).all()
+    finally:
+        db.close()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="recipes.html",
+        context={
+            "title": "Ürün Reçeteleri (BOM) - Üretim Asistanım",
+            "recipes": recipes
+        }   
+    )
+# Yeni reçete ekleme formu (GET)
+@app.get("/recipes/new", response_class=HTMLResponse)
+def get_new_recipe_form(request: Request):
+    db = SessionLocal()
+    try:
+        # Formda seçilebilmesi için aktif ürünleri ve aktif hammaddeleri çekiyoruz
+        products = db.query(models.Product).filter(models.Product.is_active == True).all()
+        raw_materials = db.query(models.RawMaterial).filter(models.RawMaterial.is_active == True).all()
+    finally:
+        db.close()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="recipe_form.html",
+        context={
+            "title": "Yeni Ürün Reçetesi (BOM) Ekle - Üretim Asistanım",
+            "products": products,
+            "raw_materials": raw_materials,
+            "recipe": None  # Yeni ekleme olduğu için reçete boş gidiyor
+        }
+    )
+
+# Yeni reçete kaydetme işlemi (POST)
+@app.post("/recipes/new")
+def post_new_recipe(
+    request: Request,
+    product_id: int = Form(...),
+    raw_material_id: int = Form(...),
+    quantity_needed: float = Form(...),
+    scrap_rate: float = Form(0.0),
+    version: str = Form("v1.0")
+):
+    db = SessionLocal()
+    try:
+        # Seçilen ürün ve hammadde arasında zaten bir reçete tanımı var mı kontrol ediyoruz
+        existing = db.query(models.Recipe).filter(
+            models.Recipe.product_id == product_id,
+            models.Recipe.raw_material_id == raw_material_id
+        ).first()
+        
+        if existing:
+            # Hata durumunda dropdown'ları doldurmak için ürün ve hammaddeleri tekrar çekiyoruz
+            products = db.query(models.Product).filter(models.Product.is_active == True).all()
+            raw_materials = db.query(models.RawMaterial).filter(models.RawMaterial.is_active == True).all()
+            return templates.TemplateResponse(
+                request=request,
+                name="recipe_form.html",
+                context={
+                    "title": "Yeni Ürün Reçetesi (BOM) Ekle - Üretim Asistanım",
+                    "products": products,
+                    "raw_materials": raw_materials,
+                    "recipe": None,
+                    "error": "Bu ürün ve hammadde eşleşmesi için zaten bir reçete satırı tanımlı!"
+                }
+            )
+        
+        # Yeni reçete kaydını oluşturuyoruz
+        new_recipe = models.Recipe(
+            product_id=product_id,
+            raw_material_id=raw_material_id,
+            quantity_needed=quantity_needed,
+            scrap_rate=scrap_rate / 100.0,  # Arayüzden %5 olarak gelen veriyi 0.05 olarak kaydediyoruz
+            version=version.strip()
+        )
+        db.add(new_recipe)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Reçete kaydetme hatası: {e}")
+        products = db.query(models.Product).filter(models.Product.is_active == True).all()
+        raw_materials = db.query(models.RawMaterial).filter(models.RawMaterial.is_active == True).all()
+        return templates.TemplateResponse(
+            request=request,
+            name="recipe_form.html",
+            context={
+                "title": "Yeni Ürün Reçetesi (BOM) Ekle - Üretim Asistanım",
+                "products": products,
+                "raw_materials": raw_materials,
+                "recipe": None,
+                "error": "Reçete kaydedilirken sistemsel bir hata oluştu!"
+            }
+        )
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/recipes", status_code=303)
+
+# Reçete düzenleme formu (GET)
+@app.get("/recipes/{id}/edit", response_class=HTMLResponse)
+def get_edit_recipe_form(id: int, request: Request):
+    db = SessionLocal()
+    try:
+        # Düzenlenecek reçeteyi veritabanından çekiyoruz
+        recipe = db.query(models.Recipe).filter(models.Recipe.id == id).first()
+        if not recipe:
+            raise HTTPException(status_code=404, detail="Reçete bulunamadı")
+            
+        # Formda gösterilmek üzere aktif ürün ve hammaddeleri çekiyoruz
+        products = db.query(models.Product).filter(models.Product.is_active == True).all()
+        raw_materials = db.query(models.RawMaterial).filter(models.RawMaterial.is_active == True).all()
+    finally:
+        db.close()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="recipe_form.html",
+        context={
+            "title": "Ürün Reçetesi (BOM) Düzenle - Üretim Asistanım",
+            "products": products,
+            "raw_materials": raw_materials,
+            "recipe": recipe
+        }
+    )
+
+# Reçete düzenleme kaydı (POST)
+@app.post("/recipes/{id}/edit")
+def post_edit_recipe(
+    id: int,
+    request: Request,
+    product_id: int = Form(...),
+    raw_material_id: int = Form(...),
+    quantity_needed: float = Form(...),
+    scrap_rate: float = Form(0.0),
+    version: str = Form("v1.0")
+):
+    db = SessionLocal()
+    recipe = None
+    try:
+        # Reçeteyi buluyoruz
+        recipe = db.query(models.Recipe).filter(models.Recipe.id == id).first()
+        if not recipe:
+            #raise şey demek hatayı direkt biz göderiyoruz eğer şartlar sağlanmadıysa direkt kodun devamını çalıştırma ve bu hata mesajını gönder 
+            raise HTTPException(status_code=404, detail="Reçete bulunamadı")
+            
+        # Mükerrer Eşleşme Kontrolü: Ürün veya hammadde değiştirildiyse, bu eşleşmenin başka bir reçetede olmaması gerekir
+        existing = db.query(models.Recipe).filter(
+            models.Recipe.product_id == product_id,
+            models.Recipe.raw_material_id == raw_material_id,
+            models.Recipe.id != id
+        ).first()
+        
+        if existing:
+            products = db.query(models.Product).filter(models.Product.is_active == True).all()
+            raw_materials = db.query(models.RawMaterial).filter(models.RawMaterial.is_active == True).all()
+            return templates.TemplateResponse(
+                request=request,
+                name="recipe_form.html",
+                context={
+                    "title": "Ürün Reçetesi (BOM) Düzenle - Üretim Asistanım",
+                    "products": products,
+                    "raw_materials": raw_materials,
+                    "recipe": recipe,
+                    "error": "Bu ürün ve hammadde eşleşmesi için başka bir reçete zaten tanımlı!"
+                }
+            )
+            
+        # Bilgileri güncelliyoruz
+        recipe.product_id = product_id
+        recipe.raw_material_id = raw_material_id
+        recipe.quantity_needed = quantity_needed
+        recipe.scrap_rate = scrap_rate / 100.0  # Arayüzden %5 olarak gelen veriyi 0.05 olarak güncelliyoruz
+        recipe.version = version.strip()
+        
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Reçete düzenleme hatası: {e}")
+        products = db.query(models.Product).filter(models.Product.is_active == True).all()
+        raw_materials = db.query(models.RawMaterial).filter(models.RawMaterial.is_active == True).all()
+        return templates.TemplateResponse(
+            request=request,
+            name="recipe_form.html",
+            context={
+                "title": "Ürün Reçetesi (BOM) Düzenle - Üretim Asistanım",
+                "products": products,
+                "raw_materials": raw_materials,
+                "recipe": recipe,
+                "error": "Reçete güncellenirken sistemsel bir hata oluştu!"
+            }
+        )
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/recipes", status_code=303)
+    
