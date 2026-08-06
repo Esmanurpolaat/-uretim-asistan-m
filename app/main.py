@@ -1519,3 +1519,98 @@ def post_plani_iptal_et(id: int, request: Request):
         db.close()
         
     return RedirectResponse(url="/planning", status_code=303)
+
+@app.get("/mrp", response_class=HTMLResponse)
+def get_mrp_raporu(request: Request):
+    db = SessionLocal()
+    try:
+        # Planlanmış siparişleri, ürün ve reçete ilişkileriyle birlikte çekiyoruz
+        orders = db.query(models.Order).filter(
+            models.Order.status == "Planlandı"
+        ).options(
+            joinedload(models.Order.product)
+            .joinedload(models.Product.recipes)
+            .joinedload(models.Recipe.raw_material)
+        ).all()
+        
+        # Depodaki stok durumunu çekiyoruz
+        stocks = db.query(models.WarehouseStock).all()
+        
+        # 1. Depodaki kullanılabilir toplam stokları hammadde bazında gruplayıp hesaplıyoruz
+        stok_durumu = {}  # {raw_material_id: toplam_usable_stock}
+        for stock in stocks:
+            stok_durumu[stock.raw_material_id] = stok_durumu.get(stock.raw_material_id, 0.0) + stock.usable_stock
+            
+        # 2. Planlanan siparişlere göre hammadde ihtiyaçlarını hesaplıyoruz
+        malzeme_ihtiyacları = []  # Detaylı satır listesi
+        satin_alma_onerileri = {}  # {raw_material_id: {details}} - Eksik olanların birleştirilmiş hali
+        
+        from datetime import timedelta
+        
+        for order in orders:
+            if not order.product or not order.product.recipes:
+                continue
+                
+            for recipe in order.product.recipes:
+                material = recipe.raw_material
+                if not material:
+                    continue
+                    
+                # Fire dahil toplam ihtiyaç hesaplama: Sipariş Miktarı * Birim Tüketim * (1 + Fire Oranı)
+                temel_ihtiyac = order.quantity * recipe.quantity_needed
+                toplam_ihtiyac = temel_ihtiyac * (1.0 + recipe.scrap_rate)
+                
+                depodaki_stok = stok_durumu.get(material.id, 0.0)
+                durum = "Yeterli" if depodaki_stok >= toplam_ihtiyac else "Eksik"
+                
+                # Malzeme gereksinim listesine satır ekliyoruz
+                malzeme_ihtiyacları.append({
+                    "order_no": order.order_no,
+                    "item_no": order.item_no,
+                    "product_name": order.product.product_name,
+                    "material_code": material.material_code,
+                    "material_name": material.material_name,
+                    "unit": material.unit,
+                    "needed_qty": toplam_ihtiyac,
+                    "available_qty": depodaki_stok,
+                    "status": durum,
+                    "delivery_date": order.estimated_delivery_date
+                })
+                
+                # Eğer stok yetersiz ise satın alma önerisi oluşturuyoruz
+                if durum == "Eksik":
+                    eksik_miktar = toplam_ihtiyac - depodaki_stok
+                    
+                    # Sipariş teslim tarihinden tedarik süresini (lead_time) gün olarak çıkarıyoruz
+                    order_date = None
+                    if order.estimated_delivery_date:
+                        order_date = order.estimated_delivery_date - timedelta(days=material.lead_time)
+                        
+                    # Aynı hammadde için birden fazla sipariş varsa eksikleri topluyoruz
+                    if material.id not in satin_alma_onerileri:
+                        satin_alma_onerileri[material.id] = {
+                            "material_code": material.material_code,
+                            "material_name": material.material_name,
+                            "unit": material.unit,
+                            "missing_qty": eksik_miktar,
+                            "lead_time": material.lead_time,
+                            "latest_order_date": order_date
+                        }
+                    else:
+                        satin_alma_onerileri[material.id]["missing_qty"] += eksik_miktar
+                        # En yakın (en kritik) satın alma tarihini seçiyoruz
+                        if order_date and (not satin_alma_onerileri[material.id]["latest_order_date"] or order_date < satin_alma_onerileri[material.id]["latest_order_date"]):
+                            satin_alma_onerileri[material.id]["latest_order_date"] = order_date
+
+    finally:
+        db.close()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="mrp.html",
+        context={
+            "title": "Malzeme İhtiyaç Planlama (MRP) - Üretim Asistanım",
+            "requirements": malzeme_ihtiyacları,
+            "proposals": list(satin_alma_onerileri.values())
+        }
+    )
