@@ -1436,4 +1436,86 @@ def post_edit_recipe(
         db.close()
         
     return RedirectResponse(url="/recipes", status_code=303)
-    
+
+@app.get("/planning", response_class=HTMLResponse)
+def get_planning_dashboard(request: Request):
+    db = SessionLocal()
+    try:
+        orders = db.query(models.Order).options(
+            joinedload(models.Order.product).joinedload(models.Product.recipes)
+        ).all()
+        production_lines = db.query(models.ProductionLine).all() 
+        #üretim hatlarını çektik
+    finally:
+        db.close()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="planning.html",
+        context={
+            "title": "Üretim Planlama Paneli - Üretim Asistanım",
+            "orders": orders,
+            "production_lines": production_lines
+        }
+    )
+# Siparişi hatta planlama post kısmı 
+@app.post("/planning/planla")
+def post_planla_order(
+    request: Request,
+    order_id: int = Form(...),
+    production_line: str = Form(...),
+    estimated_delivery_date: str = Form(...)  # YYYY-MM-DD formatında tarih
+):
+    db = SessionLocal()
+    try:
+        # Planlanacak siparişi buluyoruz
+        order = db.query(models.Order).filter(models.Order.id == order_id).first()
+        if not order:
+            raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+            
+        # Tarih formatını Python date nesnesine çeviriyoruz
+        from datetime import datetime
+        try:
+            delivery_date = datetime.strptime(estimated_delivery_date, "%Y-%m-%d").date()
+        except ValueError:
+            return RedirectResponse(url="/planning?error=Gecerli bir tarih girilmedi!", status_code=303)
+
+        # Sipariş bilgilerini güncelliyoruz
+        order.production_line = production_line.strip()
+        order.estimated_delivery_date = delivery_date
+        order.status = "Planlandı"
+        
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Planlama hatası: {e}")
+        return RedirectResponse(url="/planning?error=Planlama sirasinda hata olustu!", status_code=303)
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/planning", status_code=303)
+
+# Hatta planlanmış siparişin planını iptal etme post
+@app.post("/planning/plani-iptal-et/{id}")
+def post_plani_iptal_et(id: int, request: Request):
+    db = SessionLocal()
+    try:
+        # Plandan çıkarılacak siparişi buluyoruz
+        order = db.query(models.Order).filter(models.Order.id == id).first()
+        if not order:
+            raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+            
+        # Planlama bilgilerini sıfırlıyoruz ve durumu  yeni yaptık
+        order.production_line = None
+        order.estimated_delivery_date = None
+        order.status = "Yeni"
+        
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Plan iptal hatası: {e}")
+        return RedirectResponse(url="/planning?error=Plan iptal edilirken bir hata oluştu!", status_code=303)
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/planning", status_code=303)
