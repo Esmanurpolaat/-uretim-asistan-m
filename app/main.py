@@ -1614,3 +1614,110 @@ def get_mrp_raporu(request: Request):
             "proposals": list(satin_alma_onerileri.values())
         }
     )
+# Üretim Takip Sayfası (GET)
+@app.get("/production", response_class=HTMLResponse)
+def get_production(request: Request):
+    db = SessionLocal()
+
+    try:
+        # Planlanmış ve üretimde olan aktif siparişleri çekiyoruz
+        active_orders = (
+            db.query(models.Order)
+            .filter(
+                models.Order.status.in_(["Planlandı", "Üretimde"])
+            )
+            .options(
+                joinedload(models.Order.product)
+            )
+            .all()
+        )
+
+        # Tamamlanmış siparişleri çekiyoruz
+        completed_orders = (
+            db.query(models.Order)
+            .filter(
+                models.Order.status == "Tamamlandı"
+            )
+            .options(
+                joinedload(models.Order.product)
+            )
+            .all()
+        )
+
+        return templates.TemplateResponse(
+            request=request,
+            name="production.html",
+            context={
+                "title": "Üretim Takip & MES Onay Girişi - Üretim Asistanım",
+                "active_orders": active_orders,
+                "completed_orders": completed_orders,
+            },
+        )
+
+    finally:
+        db.close()
+
+  
+# Üretim Onaylama ve Stoktan Düşme İşlemi (POST)
+@app.post("/production/onayla")
+def post_production_confirmation(
+    request: Request,
+    siparis_id: int = Form(...),
+    uretilen_miktar: float = Form(...),
+    fire_miktari: float = Form(...)
+):
+    db = SessionLocal()
+    try:
+        # Siparişi buluyoruz
+        order = db.query(models.Order).filter(models.Order.id == siparis_id).first()
+        if not order:
+            raise HTTPException(status_code=404, detail="Sipariş bulunamadı")
+            
+        # Sipariş bilgilerini güncelliyoruz
+        order.status = "Tamamlandı"
+        order.actual_delivery_date = date.today()
+        order.completion_date = date.today()
+        
+        # Ürünün reçetesini çekip hammaddeleri stoktan düşüyoruz
+        if order.product and order.product.recipes:
+            for recipe in order.product.recipes:
+                material = recipe.raw_material
+                if not material:
+                    continue
+                
+                # Standart tüketim + fire miktarına göre toplam düşülecek miktar
+                # Tüketim = (Üretilen Miktar + Fire Miktarı) * Reçetedeki Birim İhtiyaç
+                toplam_tuketim = (uretilen_miktar + fire_miktari) * recipe.quantity_needed
+                
+                # FIFO (İlk Giren İlk Çıkar) yöntemiyle o hammaddeye ait kullanılabilir stok lotlarını çekiyoruz
+                stocks = db.query(models.WarehouseStock).filter(
+                    models.WarehouseStock.raw_material_id == material.id,
+                    models.WarehouseStock.usable_stock > 0
+                ).order_by(models.WarehouseStock.id.asc()).all()
+                
+                kalan_dusulecek = toplam_tuketim
+                
+                for stock in stocks:
+                    if kalan_dusulecek <= 0:
+                        break
+                        
+                    if stock.usable_stock >= kalan_dusulecek:
+                        # Bu lotun stoğu yetiyor, hepsini düşüyoruz
+                        stock.usable_stock -= kalan_dusulecek
+                        stock.physical_stock -= kalan_dusulecek
+                        kalan_dusulecek = 0
+                    else:
+                        # Bu lotun stoğu yetmiyor, lotu sıfırlayıp kalanı sonraki lota aktarıyoruz
+                        kalan_dusulecek -= stock.usable_stock
+                        stock.physical_stock = 0.0
+                        stock.usable_stock = 0.0
+                        
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        print(f"Üretim onay hatası: {e}")
+        return RedirectResponse(url="/production?error=Onay sırasında bir hata oluştu!", status_code=303)
+    finally:
+        db.close()
+        
+    return RedirectResponse(url="/production", status_code=303)
