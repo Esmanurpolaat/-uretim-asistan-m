@@ -1520,8 +1520,9 @@ def post_plani_iptal_et(id: int, request: Request):
         
     return RedirectResponse(url="/planning", status_code=303)
 
+# Malzeme İhtiyaç Planlama (MRP) Raporu (GET)
 @app.get("/mrp", response_class=HTMLResponse)
-def get_mrp_raporu(request: Request):
+def get_mrp_report(request: Request):
     db = SessionLocal()
     try:
         # Planlanmış siparişleri, ürün ve reçete ilişkileriyle birlikte çekiyoruz
@@ -1535,6 +1536,8 @@ def get_mrp_raporu(request: Request):
         
         # Depodaki stok durumunu çekiyoruz
         stocks = db.query(models.WarehouseStock).all()
+        # Tüm hammaddeleri çekiyoruz
+        raw_materials = db.query(models.RawMaterial).filter(models.RawMaterial.is_active == True).all()
         
         # 1. Depodaki kullanılabilir toplam stokları hammadde bazında gruplayıp hesaplıyoruz
         stok_durumu = {}  # {raw_material_id: toplam_usable_stock}
@@ -1614,50 +1617,37 @@ def get_mrp_raporu(request: Request):
             "proposals": list(satin_alma_onerileri.values())
         }
     )
+
 # Üretim Takip Sayfası (GET)
 @app.get("/production", response_class=HTMLResponse)
-def get_production(request: Request):
+def get_production_tracking(request: Request):
     db = SessionLocal()
-
     try:
-        # Planlanmış ve üretimde olan aktif siparişleri çekiyoruz
-        active_orders = (
-            db.query(models.Order)
-            .filter(
-                models.Order.status.in_(["Planlandı", "Üretimde"])
-            )
-            .options(
-                joinedload(models.Order.product)
-            )
-            .all()
-        )
-
-        # Tamamlanmış siparişleri çekiyoruz
-        completed_orders = (
-            db.query(models.Order)
-            .filter(
-                models.Order.status == "Tamamlandı"
-            )
-            .options(
-                joinedload(models.Order.product)
-            )
-            .all()
-        )
-
-        return templates.TemplateResponse(
-            request=request,
-            name="production.html",
-            context={
-                "title": "Üretim Takip & MES Onay Girişi - Üretim Asistanım",
-                "active_orders": active_orders,
-                "completed_orders": completed_orders,
-            },
-        )
-
+        # Üretimdeki (Planlandı) ve tamamlanmış siparişleri çekiyoruz
+        active_orders = db.query(models.Order).filter(
+            models.Order.status == "Planlandı"
+        ).options(
+            joinedload(models.Order.product)
+        ).all()
+        
+        completed_orders = db.query(models.Order).filter(
+            models.Order.status == "Tamamlandı"
+        ).options(
+            joinedload(models.Order.product)
+        ).all()
     finally:
         db.close()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="production.html",
+        context={
+            "title": "Üretim Takip & MES Onay Girişi - Üretim Asistanım",
+            "active_orders": active_orders,
+            "completed_orders": completed_orders
+        }
+    )
 
-  
 # Üretim Onaylama ve Stoktan Düşme İşlemi (POST)
 @app.post("/production/onayla")
 def post_production_confirmation(
@@ -1721,3 +1711,54 @@ def post_production_confirmation(
         db.close()
         
     return RedirectResponse(url="/production", status_code=303)
+
+# Performans Raporlama Ekranı (GET)
+@app.get("/reports", response_class=HTMLResponse)
+def get_reports_page(request: Request):
+    db = SessionLocal()
+    try:
+        # Tamamlanmış siparişleri reçeteleriyle birlikte çekiyoruz
+        completed_orders = db.query(models.Order).options(
+            joinedload(models.Order.product).joinedload(models.Product.recipes)
+        ).filter(models.Order.status == "Tamamlandı").all()
+        
+        # Planlanmış aktif siparişleri çekiyoruz
+        active_orders = db.query(models.Order).filter(models.Order.status == "Planlandı").all()
+        
+        # 1. Hat Bazlı Üretim Miktarları (Bar Grafik Verisi)
+        line_production = {}  # {hat_adi: toplam_uretim}
+        for order in completed_orders:
+            if order.production_line:
+                line_production[order.production_line] = line_production.get(order.production_line, 0.0) + order.quantity
+                
+        # 2. Fabrika Geneli Üretim vs Fire Dağılımı (Doughnut Grafik Verisi)
+        toplam_uretim = sum(o.quantity for o in completed_orders) if completed_orders else 0.0
+        toplam_fire = 0.0
+        
+        for order in completed_orders:
+            if order.product and order.product.recipes:
+                for recipe in order.product.recipes:
+                    # Fire Miktarı = Sipariş Miktarı * Reçete Fire Yüzdesi
+                    toplam_fire += order.quantity * recipe.scrap_rate
+                    
+        # 3. Hat Bazında İş Yükü Dağılımı (Radar / Polar Area Grafik Verisi)
+        # Hangi hatta kaç tane aktif (Planlandı) sipariş bekliyor?
+        line_workload = {}  # {hat_adi: siparis_sayisi}
+        for order in active_orders:
+            if order.production_line:
+                line_workload[order.production_line] = line_workload.get(order.production_line, 0) + 1
+                
+    finally:
+        db.close()
+        
+    return templates.TemplateResponse(
+        request=request,
+        name="reports.html",
+        context={
+            "title": "Performans Raporları - Üretim Asistanım",
+            "line_production": line_production,
+            "toplam_uretim": toplam_uretim,
+            "toplam_fire": toplam_fire,
+            "line_workload": line_workload
+        }
+    )
