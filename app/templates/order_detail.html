@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            padding: 30px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .header p {
+            margin: 4px 0 0 0;
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #475569;
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12.5px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            margin-right: 8px;
+        }
+
+        .btn-back:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        .badge-status {
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .badge-yeni { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .badge-planlandi { background-color: #fef3c7; color: #d97706; border: 1px solid #fcd34d; }
+        .badge-uretimde { background-color: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe; }
+        .badge-tamamlandi { background-color: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 20px;
+        }
+
+        .card h2 {
+            margin: 0 0 16px 0;
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13.5px;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+
+        .row:last-child {
+            border-bottom: none;
+        }
+
+        .row span {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .row strong {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .actions-bar {
+            display: flex;
+            justify-content: flex-end;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 20px;
+        }
+
+        .btn-edit {
+            text-decoration: none;
+            background: #0f172a;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: background 0.2s;
+            border: 1px solid #0f172a;
+        }
+
+        .btn-edit:hover {
+            background: #1e293b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <div style="margin-bottom: 12px; display: flex;">
+                    <a href="/" class="btn-back">← Ana Sayfaya Dön</a>
+                    <a href="/orders" class="btn-back">← Sipariş Takibine Git</a>
+                </div>
+                <h1>{{ order.order_no }}</h1>
+                <p>Sipariş ve Üretim Detay Kartı</p>
+            </div>
+            <div>
+                {% if order.status == 'Yeni' %}
+                    <span class="badge-status badge-yeni">{{ order.status }}</span>
+                {% elif order.status == 'Planlandı' %}
+                    <span class="badge-status badge-planlandi">{{ order.status }}</span>
+                {% elif order.status == 'Üretimde' %}
+                    <span class="badge-status badge-uretimde">{{ order.status }}</span>
+                {% elif order.status == 'Tamamlandı' %}
+                    <span class="badge-status badge-tamamlandi">{{ order.status }}</span>
+                {% else %}
+                    <span class="badge-status badge-yeni">{{ order.status }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid">
+            <!-- Sipariş Bilgileri -->
+            <div class="card">
+                <h2>Sipariş Bilgileri</h2>
+                <div class="row">
+                    <span>Sipariş No</span>
+                    <strong>{{ order.order_no }}</strong>
+                </div>
+                <div class="row">
+                    <span>Kalem No</span>
+                    <strong>{{ order.item_no or "—" }}</strong>
+                </div>
+                <div class="row">
+                    <span>Müşteri</span>
+                    <strong>{{ order.customer_name or "—" }}</strong>
+                </div>
+                <div class="row">
+                    <span>Öncelik</span>
+                    <strong>{{ order.priority or "Normal" }}</strong>
+                </div>
+            </div>
+
+            <!-- Ürün Bilgileri -->
+            <div class="card">
+                <h2>Ürün Bilgileri</h2>
+                <div class="row">
+                    <span>Ürün Tipi</span>
+                    <strong>{{ order.product.product_name if order.product else "—" }}</strong>
+                </div>
+                <div class="row">
+                    <span>Sipariş Miktarı</span>
+                    <strong>{{ "{:,.0f}".format(order.quantity)|replace('.', ',') if order.quantity else "—" }} kg</strong>
+                </div>
+                <div class="row">
+                    <span>En (Genişlik)</span>
+                    <strong>{{ order.width or "—" }} mm</strong>
+                </div>
+                <div class="row">
+                    <span>Gramaj</span>
+                    <strong>{{ order.grammage or "—" }} g/m²</strong>
+                </div>
+            </div>
+
+            <!-- Planlama Bilgileri -->
+            <div class="card">
+                <h2>Planlama &amp; Teslimat</h2>
+                <div class="row">
+                    <span>Atanan Hat</span>
+                    <strong>{{ order.production_line or "Planlanmamış" }}</strong>
+                </div>
+                <div class="row">
+                    <span>Tahmini Teslim (Termin)</span>
+                    <strong>{{ order.estimated_delivery_date.strftime("%d.%m.%Y") if order.estimated_delivery_date else "—" }}</strong>
+                </div>
+                <div class="row">
+                    <span>Gerçek Teslim</span>
+                    <strong>{{ order.actual_delivery_date.strftime("%d.%m.%Y") if order.actual_delivery_date else "Teslim Edilmedi" }}</strong>
+                </div>
+                <div class="row">
+                    <span>Tamamlanma Tarihi</span>
+                    <strong>{{ order.completion_date.strftime("%d.%m.%Y") if order.completion_date else "Tamamlanmadı" }}</strong>
+                </div>
+            </div>
+
+            <!-- Ticari Bilgiler -->
+            <div class="card">
+                <h2>Ticari &amp; Satış Bilgileri</h2>
+                <div class="row">
+                    <span>Satış Temsilcisi</span>
+                    <strong>{{ order.sales_rep or "—" }}</strong>
+                </div>
+                <div class="row">
+                    <span>Pazar Türü</span>
+                    <strong>{{ order.market_type or "—" }}</strong>
+                </div>
+                <div class="row">
+                    <span>Birim Fiyat</span>
+                    <strong>{{ "{:,.2f}".format(order.unit_price or 0)|replace('.', ',') }} {{ order.currency or "EUR" }}</strong>
+                </div>
+                <div class="row">
+                    <span>Toplam Tutar</span>
+                    <strong>
+                        {% set total_val = (order.quantity or 0) * (order.unit_price or 0) %}
+                        {{ "{:,.2f}".format(total_val)|replace('.', ',') }} {{ order.currency or "EUR" }}
+                    </strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions-bar">
+            <a href="/orders/{{ order.id }}/edit" class="btn-edit">Siparişi Düzenle</a>
+        </div>
+    </div>
+</body>
+</html>

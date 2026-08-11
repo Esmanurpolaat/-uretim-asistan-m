@@ -114,7 +114,7 @@
         .filter-form {
             background: white;
             padding: 16px 24px;
-            border-radius: 12px;
+            border-radius: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
             border: 1px solid #e2e8f0;
             display: flex;
@@ -144,7 +144,7 @@
         }
 
         .btn-filter {
-            background: #2563eb;
+            background: #0f172a;
             color: white;
             border: none;
             padding: 8px 16px;
@@ -154,7 +154,7 @@
             transition: background 0.2s;
         }
 
-        .btn-filter:hover { background: #1d4ed8; }
+        .btn-filter:hover { background: #1e293b; }
 
         .btn-clear {
             background: #f1f5f9;
@@ -172,44 +172,99 @@
 
         /* Kompakt Üst Bilgi Rozetleri */
         .stats-badges-row {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
-            flex-wrap: wrap;
             margin-bottom: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .stats-badges-row {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .stats-badges-row {
+                grid-template-columns: 1fr;
+            }
         }
 
         .mini-stat-badge {
             background: white;
-            border: 1px solid #e2e8f0;
-            padding: 10px 18px;
-            border-radius: 10px;
+            border: 1px solid #cbd5e1;
+            padding: 12px 16px;
+            border-radius: 6px;
             display: flex;
-            align-items: center;
-            gap: 10px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            transition: all 0.2s ease;
         }
 
         .badge-title {
-            font-size: 13px;
-            font-weight: 600;
+            font-size: 12px;
+            font-weight: 700;
             color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .badge-value {
-            font-size: 16px;
+            font-size: 26px;
             font-weight: 800;
             color: #0f172a;
         }
 
-        /* Orta Panel: Risk Kartları */
+        /* Orta Panel: Grafik ve Risk Kartları */
         .dashboard-body {
-            display: block;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 24px;
             margin-bottom: 24px;
         }
 
+        @media (max-width: 900px) {
+            .dashboard-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .chart-container {
+            background: white;
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+        }
+
+        .chart-header {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .chart-wrapper {
+            width: 100%;
+            max-width: 250px;
+        }
+
+        /* Risk Kartları Bölümü */
         .risk-container {
             background: white;
-            padding: 20px 24px;
+            padding: 24px;
             border-radius: 16px;
             border: 1px solid #e2e8f0;
             display: flex;
@@ -226,8 +281,8 @@
 
         .risk-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 4 kart yan yana */
-            gap: 16px;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
 
         .risk-card {
@@ -375,6 +430,14 @@
                     </svg>
                     <span class="menu-text">Genel Durum</span>
                 </a>
+                <a href="/reports" class="menu-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    <span class="menu-text">Performans Raporları</span>
+                </a>
                 <a href="/orders" class="menu-item">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
@@ -431,48 +494,45 @@
                     </svg>
                     <span class="menu-text">Ürün Reçeteleri (BOM)</span>
                 </a>
-                <a href="/planning" class="menu-item">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
-                    <span class="menu-text">Üretim Planlama</span>
-                </a>
-                <a href="/mrp" class="menu-item">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a3 3 0 0 0 3 3h4"></path>
-                        <path d="M19 18.5a1.5 1.5 0 0 1-3 0v-8.5a1.5 1.5 0 0 1 3 0v8.5Z"></path>
-                        <circle cx="5.5" cy="18.5" r="2.5"></circle>
-                        <circle cx="18.5" cy="18.5" r="2.5"></circle>
-                    </svg>
-                    <span class="menu-text">Malzeme İhtiyaç (MRP)</span>
-                </a>
-                <a href="/production" class="menu-item">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                        <path d="M12 14l2 2 4-4"></path>
-                    </svg>
-                    <span class="menu-text">Üretim Onay (MES)</span>
-                </a>
-                <a href="/reports" class="menu-item">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="20" x2="18" y2="10"></line>
-                        <line x1="12" y1="20" x2="12" y2="4"></line>
-                        <line x1="6" y1="20" x2="6" y2="14"></line>
-                    </svg>
-                    <span class="menu-text">Performans Raporları</span>
-                </a>
             </div>
         </div>
 
         <!-- ⚙️ SAĞ PANEL (Ana İçerik Alanı) -->
         <div class="main-content">
             
+            <!-- Karşılama ve Canlı Durum Şeridi -->
+            <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 18px 24px; border-radius: 6px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+                <div>
+                    <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Günlük Operasyon Merkezi</h2>
+                    <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">{{ formatted_date }}</div>
+                    <div style="display: flex; gap: 12px; align-items: center; margin-top: 8px; flex-wrap: wrap;">
+                        <span style="font-size: 11.5px; color: #475569; display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #dc2626; display: inline-block;"></span>
+                            <strong>{{ delayed_count }}</strong> sipariş gecikmiş durumda
+                        </span>
+                        <span style="font-size: 11.5px; color: #475569; display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #ea580c; display: inline-block;"></span>
+                            <strong>{{ today_completing_count }}</strong> sipariş bugün tamamlanacak
+                        </span>
+                        <span style="font-size: 11.5px; color: #475569; display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #2563eb; display: inline-block;"></span>
+                            {{ active_line_msg }}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <a href="/orders/new" style="display: inline-flex; align-items: center; text-decoration: none; color: white; background-color: #0f172a; font-weight: 600; font-size: 11.5px; padding: 8px 14px; border-radius: 6px; transition: all 0.2s ease; border: 1px solid #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                        + Yeni Sipariş
+                    </a>
+                    <a href="/imports/upload" style="display: inline-flex; align-items: center; text-decoration: none; color: #475569; background-color: white; font-weight: 600; font-size: 11.5px; padding: 8px 14px; border-radius: 6px; border: 1px solid #cbd5e1; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                        Excel Yükle
+                    </a>
+                    <a href="/planning" style="display: inline-flex; align-items: center; text-decoration: none; color: #475569; background-color: white; font-weight: 600; font-size: 11.5px; padding: 8px 14px; border-radius: 6px; border: 1px solid #cbd5e1; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                        Üretim Planla
+                    </a>
+                </div>
+            </div>
+
             <!-- Tarih Filtreleme Formu -->
             <form action="/" method="get" class="filter-form">
                 <div class="filter-group">
@@ -495,82 +555,194 @@
                 <a href="/" class="btn-clear">Temizle</a>
             </form>
 
-            <!-- Kompakt Durum Rozetleri -->
+            <!-- Gelişmiş Operasyonel KPI Kartları -->
             <div class="stats-badges-row">
-                <div class="mini-stat-badge" style="border-left: 4px solid #3b82f6;">
-                    <span class="badge-title">Toplam Sipariş:</span>
-                    <span class="badge-value">{{ total_orders }}</span>
+                <!-- Açık Sipariş -->
+                <div class="mini-stat-badge mini-stat-badge-clickable" id="card-open" onclick="filterByCard('open')" style="border-left: 4px solid #0f172a; cursor: pointer; padding: 12px 16px;">
+                    <span class="badge-title" style="color: #0f172a;">Açık Sipariş</span>
+                    <span class="badge-value">{{ open_count }}</span>
+                    <span style="font-size: 11px; color: #475569; font-weight: 600; display: block; margin-top: 2px;">{{ "{:,.0f}".format(open_weight)|replace('.', ',') }} kg</span>
+                    <span style="font-size: 9.5px; color: #64748b; font-weight: 600; display: block; margin-top: 2px;">{{ in_production_count }} üretimde • {{ planned_count }} planlandı</span>
+                    <div style="background: #f1f5f9; height: 4px; border-radius: 2px; margin-top: 6px; overflow: hidden; width: 100%;">
+                        {% set open_percent = (in_production_count * 100 / open_count) if open_count > 0 else 0 %}
+                        <div style="background: #0f172a; height: 100%; width: {{ open_percent }}%;"></div>
+                    </div>
                 </div>
-                <div class="mini-stat-badge" style="border-left: 4px solid #f59e0b;">
-                    <span class="badge-title">Devam Eden:</span>
-                    <span class="badge-value">{{ active_orders }}</span>
+                <!-- Geciken Sipariş -->
+                <div class="mini-stat-badge mini-stat-badge-clickable" id="card-delayed" onclick="filterByCard('delayed')" style="border-left: 4px solid #dc2626; cursor: pointer; padding: 12px 16px;">
+                    <span class="badge-title" style="color: #dc2626;">Geciken Sipariş</span>
+                    <span class="badge-value">{{ delayed_count }}</span>
+                    <span style="font-size: 11px; color: #475569; font-weight: 600; display: block; margin-top: 2px;">{{ "{:,.0f}".format(delayed_weight)|replace('.', ',') }} kg</span>
+                    <span style="font-size: 9.5px; color: #dc2626; font-weight: bold; display: block; margin-top: 2px;">En yüksek gecikme: {{ max_delay_days }} gün</span>
+                    <div style="background: #f1f5f9; height: 4px; border-radius: 2px; margin-top: 6px; overflow: hidden; width: 100%;">
+                        <div style="background: #dc2626; height: 100%; width: 100%;"></div>
+                    </div>
                 </div>
-                <div class="mini-stat-badge" style="border-left: 4px solid #10b981;">
-                    <span class="badge-title">Tamamlanan:</span>
-                    <span class="badge-value">{{ completed_orders }}</span>
+                <!-- 7 Günde Termin -->
+                <div class="mini-stat-badge mini-stat-badge-clickable" id="card-upcoming_7" onclick="filterByCard('upcoming_7')" style="border-left: 4px solid #ea580c; cursor: pointer; padding: 12px 16px;">
+                    <span class="badge-title" style="color: #ea580c;">7 Günde Termin</span>
+                    <span class="badge-value">{{ upcoming_7_count }}</span>
+                    <span style="font-size: 11px; color: #475569; font-weight: 600; display: block; margin-top: 2px;">{{ "{:,.0f}".format(upcoming_7_weight)|replace('.', ',') }} kg</span>
+                    <span style="font-size: 9.5px; color: #ea580c; font-weight: bold; display: block; margin-top: 2px;">{{ unplanned_upcoming_count }} sipariş plansız</span>
+                    <div style="background: #f1f5f9; height: 4px; border-radius: 2px; margin-top: 6px; overflow: hidden; width: 100%;">
+                        {% set unplanned_percent = (unplanned_upcoming_count * 100 / upcoming_7_count) if upcoming_7_count > 0 else 0 %}
+                        <div style="background: #ea580c; height: 100%; width: {{ unplanned_percent }}%;"></div>
+                    </div>
                 </div>
-                <div class="mini-stat-badge" style="border-left: 4px solid #10b981;">
-                    <span class="badge-title">Bugün Biten:</span>
-                    <span class="badge-value">{{ completed_today }}</span>
-                </div>
-            </div>
-
-            <!-- Orta Bölüm: Risk Analizi -->
-            <div class="dashboard-body">
-                <!-- Risk Analizi Kartları -->
-                <div class="risk-container">
-                    <span class="risk-title">Aktif Risk Analizi</span>
-                    <div class="risk-grid">
-                        <!-- Gecikmiş -->
-                        <div class="risk-card" onclick="openRiskModal('delayed')" style="background: #fff1f2; border: 1px solid #fecdd3;">
-                            <div style="font-size: 11px; color: #be123c; font-weight: 700; text-transform: uppercase;">Gecikmiş</div>
-                            <div style="font-size: 22px; font-weight: 800; color: #9f1239; margin-top: 5px;">{{ delayed_count }}</div>
-                        </div>
-                        <!-- Kritik -->
-                        <div class="risk-card" onclick="openRiskModal('critical')" style="background: #fff7ed; border: 1px solid #ffedd5;">
-                            <div style="font-size: 11px; color: #c2410c; font-weight: 700; text-transform: uppercase;">Kritik (0-2 Gün)</div>
-                            <div style="font-size: 22px; font-weight: 800; color: #9a3412; margin-top: 5px;">{{ critical_count }}</div>
-                        </div>
-                        <!-- Yaklaşan -->
-                        <div class="risk-card" onclick="openRiskModal('upcoming')" style="background: #fef8e7; border: 1px solid #fef3c7;">
-                            <div style="font-size: 11px; color: #b45309; font-weight: 700; text-transform: uppercase;">Yaklaşan (3-7 Gün)</div>
-                            <div style="font-size: 22px; font-weight: 800; color: #78350f; margin-top: 5px;">{{ upcoming_count }}</div>
-                        </div>
-                        <!-- Zamanında -->
-                        <div class="risk-card" onclick="openRiskModal('ontime')" style="background: #f0fdf4; border: 1px solid #dcfce7;">
-                            <div style="font-size: 11px; color: #15803d; font-weight: 700; text-transform: uppercase;">Zamanında</div>
-                            <div style="font-size: 22px; font-weight: 800; color: #166534; margin-top: 5px;">{{ ontime_count }}</div>
-                        </div>
+                <!-- Bugün Tamamlanacak -->
+                <div class="mini-stat-badge mini-stat-badge-clickable" id="card-today" onclick="filterByCard('today')" style="border-left: 4px solid #16a34a; cursor: pointer; padding: 12px 16px;">
+                    <span class="badge-title" style="color: #16a34a;">Bugün Tamamlanacak</span>
+                    <span class="badge-value">{{ today_completing_count }}</span>
+                    <span style="font-size: 11px; color: #475569; font-weight: 600; display: block; margin-top: 2px;">{{ "{:,.0f}".format(today_completing_weight)|replace('.', ',') }} kg</span>
+                    <span style="font-size: 9.5px; color: #16a34a; font-weight: bold; display: block; margin-top: 2px;">Yarın: {{ tomorrow_completing_count }} sipariş</span>
+                    <div style="background: #f1f5f9; height: 4px; border-radius: 2px; margin-top: 6px; overflow: hidden; width: 100%;">
+                        <div style="background: #16a34a; height: 100%; width: 100%;"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Son Eklenen 5 Sipariş Tablosu -->
+            <!-- Bu Ayın Özeti Şeridi -->
+            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div style="font-size: 12px; font-weight: 700; color: #0f172a;">📊 Bu Ayın Özeti</div>
+                <div style="display: flex; gap: 24px; flex-wrap: wrap;">
+                    <div style="font-size: 12px; color: #475569;">
+                        <span>Bu ay tamamlanan:</span> <strong style="color: #0f172a;">{{ this_month_completed_count }} sipariş / {{ "{:,.0f}".format(this_month_completed_qty)|replace('.', ',') }} kg</strong>
+                    </div>
+                    <div style="font-size: 12px; color: #475569;">
+                        <span>Zamanında teslim:</span> <strong style="color: #16a34a;">%{{ "{:.1f}".format(this_month_ontime_ratio)|replace('.', ',') if this_month_ontime_ratio is not none else '—' }}</strong>
+                        {% if this_month_completed_count > 0 %}
+                        <span style="font-size: 10px; color: #64748b; font-weight: 600;">({{ this_month_completed_count }} tamamlanan sipariş üzerinden)</span>
+                        {% endif %}
+                    </div>
+                    <div style="font-size: 12px; color: #475569;">
+                        <span>Ortalama gecikme:</span> <strong style="color: #0f172a;">{{ "{:.1f}".format(this_month_avg_delay)|replace('.', ',') if this_month_avg_delay is not none else '—' }} gün</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orta Bölüm: Bugünün Planı ve Öncelikli Eylemler -->
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 20px; margin-bottom: 24px;">
+                <!-- Sol Panel: Bugünün Üretim Planı -->
+                <div class="table-container" style="padding: 16px; margin-bottom: 0;">
+                    <div class="table-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span>📋 Bugünün Üretim Planı</span>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Hat</th>
+                                    <th>Sipariş</th>
+                                    <th>Ürün</th>
+                                    <th style="width: 140px;">İlerleme</th>
+                                    <th>Tahmini Bitiş</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if today_production_plan %}
+                                    {% for plan in today_production_plan %}
+                                    <tr>
+                                        <td><strong>{{ plan.line }}</strong></td>
+                                        <td>{{ plan.order_no }}</td>
+                                        <td>{{ plan.product_name }}</td>
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <div style="background: #f1f5f9; height: 6px; border-radius: 3px; flex: 1; overflow: hidden; position: relative;">
+                                                    <div style="background: #0f172a; height: 100%; width: {{ plan.progress }}%;"></div>
+                                                </div>
+                                                <span style="font-size: 10px; font-weight: bold; color: #0f172a; min-width: 26px; text-align: right;">%{{ plan.progress }}</span>
+                                            </div>
+                                        </td>
+                                        <td><span style="font-weight: 600; color: #1e293b;">{{ plan.end_time }}</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; color: #94a3b8; padding: 20px; font-style: italic;">
+                                            Planlı aktif üretim bulunmamaktadır.
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Sağ Panel: Öncelikli Aksiyonlar -->
+                <div class="table-container" style="padding: 16px; margin-bottom: 0;">
+                    <div class="table-title" style="margin-bottom: 12px;">🚨 Öncelikli Aksiyonlar</div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        {% for action in priority_actions %}
+                        <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 6px; background-color: {% if action.type == 'danger' %}#fff5f5{% elif action.type == 'warning' %}#fffbeb{% else %}#f0fdf4{% endif %}; border: 1px solid {% if action.type == 'danger' %}#fee2e2{% elif action.type == 'warning' %}#fef3c7{% else %}#dcfce7{% endif %};">
+                            <span style="font-size: 14px; margin-top: 1px;">
+                                {% if action.type == 'danger' %}🔴{% elif action.type == 'warning' %}🟠{% else %}🟢{% endif %}
+                            </span>
+                            <div style="font-size: 11.5px; line-height: 1.4; color: #1e293b; font-weight: 600;">
+                                {{ action.text }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sipariş Takip & Detay Listesi Tablosu -->
             <div class="table-container">
-                <div class="table-title">Son Eklenen 5 Sipariş</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div class="table-title" id="table-title-text" style="margin-bottom: 0;">Sipariş Takip &amp; Detay Listesi</div>
+                    <button onclick="clearCardFilter()" id="clear-filter-btn" style="display: none; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: #475569; cursor: pointer; transition: all 0.2s ease;">
+                        Tüm Açık Siparişleri Göster
+                    </button>
+                </div>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>Sipariş No</th>
-                                <th>Kalem No</th>
+                                <th>Sipariş</th>
                                 <th>Müşteri</th>
-                                <th>Ürün</th>
                                 <th>Miktar</th>
-                                <th>Üretim Hattı</th>
+                                <th>Hat</th>
+                                <th>Termin</th>
+                                <th>Kalan Süre</th>
+                                <th style="width: 140px;">İlerleme</th>
                                 <th>Durum</th>
+                                <th>İşlemler</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% if last_orders %}
                                 {% for order in last_orders %}
-                                    <tr>
+                                    <tr class="order-row" 
+                                        data-is-open="{{ order.is_open_flag }}"
+                                        data-is-delayed="{{ order.is_delayed_flag }}"
+                                        data-is-upcoming7="{{ order.is_upcoming7_flag }}"
+                                        data-is-today="{{ order.is_today_flag }}"
+                                        onclick="window.location.href='/orders/{{ order.id }}/detail'" 
+                                        style="cursor: pointer;">
                                         <td><strong>{{ order.order_no }}</strong></td>
-                                        <td>{{ order.item_no }}</td>
                                         <td>{{ order.customer_name }}</td>
-                                        <td>{{ order.product.product_name if order.product else '-' }}</td>
-                                        <td>{{ "{:,.2f}".format(order.quantity) if order.quantity else '-' }}</td>
+                                        <td><strong>{{ "{:,.0f}".format(order.quantity)|replace('.', ',') if order.quantity else '-' }} kg</strong></td>
                                         <td>{{ order.production_line or '-' }}</td>
+                                        <td>{{ order.estimated_delivery_date.strftime('%d.%m.%Y') if order.estimated_delivery_date else '-' }}</td>
+                                        <td>
+                                            {% if order.status == 'Tamamlandı' %}
+                                                <span style="color: #16a34a; font-weight: 600;">{{ order.kalan_gun_str }}</span>
+                                            {% elif order.is_delayed_flag == 'true' %}
+                                                <span style="color: #dc2626; font-weight: 700;">{{ order.kalan_gun_str }}</span>
+                                            {% elif order.is_upcoming7_flag == 'true' %}
+                                                <span style="color: #ea580c; font-weight: 700;">{{ order.kalan_gun_str }}</span>
+                                            {% else %}
+                                                <span style="color: #475569; font-weight: 600;">{{ order.kalan_gun_str }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td onclick="event.stopPropagation();">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <div style="background: #f1f5f9; height: 6px; border-radius: 3px; flex: 1; overflow: hidden;">
+                                                    <div style="background: #0f172a; height: 100%; width: {{ order.progress }}%;"></div>
+                                                </div>
+                                                <span style="font-size: 10px; font-weight: bold; color: #0f172a; min-width: 26px; text-align: right;">%{{ order.progress }}</span>
+                                            </div>
+                                        </td>
                                         <td>
                                             {% if order.status == 'Yeni' %}
                                                 <span class="badge badge-yeni">{{ order.status }}</span>
@@ -578,17 +750,22 @@
                                                 <span class="badge badge-planlandi">{{ order.status }}</span>
                                             {% elif order.status == 'Üretimde' %}
                                                 <span class="badge badge-uretimde">{{ order.status }}</span>
-                                            {% elif order.status == 'Teslim Edildi' or order.status == 'Tamamlandı' %}
+                                            {% elif order.status == 'Tamamlandı' %}
                                                 <span class="badge badge-tamamlandi">{{ order.status }}</span>
                                             {% else %}
                                                 <span class="badge">{{ order.status }}</span>
                                             {% endif %}
                                         </td>
+                                        <td onclick="event.stopPropagation();">
+                                            <a href="/orders/{{ order.id }}/detail" style="display: inline-flex; align-items: center; text-decoration: none; color: #0f172a; background-color: #f1f5f9; font-weight: 700; font-size: 11px; padding: 4px 8px; border-radius: 4px; border: 1px solid #cbd5e1; transition: all 0.2s ease;">
+                                                Detay
+                                            </a>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td colspan="7" style="text-align: center; color: #94a3b8; padding: 20px;">
+                                    <td colspan="9" style="text-align: center; color: #94a3b8; padding: 20px;">
                                         Sistemde henüz kayıtlı sipariş yok.
                                     </td>
                                 </tr>
@@ -600,147 +777,80 @@
         </div>
     </div>
 
-     <!-- Chart.js Pasta Grafiği Çizdirme Kodları -->
+    <!-- JS scripts for layout features -->
     <script>
         // Sol Menüyü Açma-Kapatma Fonksiyonu
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             sidebar.classList.toggle('collapsed');
         }
-        
-        // Python'dan (Jinja2) gelen sipariş listelerini JS nesnesine dönüştürüyoruz
-        const riskData = {
-            delayed: [
-                {% for o in delayed_orders %}
-                {
-                    order_no: "{{ o.order_no }}",
-                    item_no: "{{ o.item_no }}",
-                    customer: "{{ o.customer_name }}",
-                    quantity: "{{ o.quantity or '-' }}",
-                    delivery_date: "{{ o.estimated_delivery_date.strftime('%d.%m.%Y') if o.estimated_delivery_date else '-' }}",
-                    info: "{{ o.remaining_days | abs }} gün gecikti",
-                    infoColor: "#e11d48"
-                },
-                {% endfor %}
-            ],
-            critical: [
-                {% for o in critical_orders %}
-                {
-                    order_no: "{{ o.order_no }}",
-                    item_no: "{{ o.item_no }}",
-                    customer: "{{ o.customer_name }}",
-                    quantity: "{{ o.quantity or '-' }}",
-                    delivery_date: "{{ o.estimated_delivery_date.strftime('%d.%m.%Y') if o.estimated_delivery_date else '-' }}",
-                    info: "{% if o.remaining_days == 0 %}Bugün teslim!{% else %}{{ o.remaining_days }} gün kaldı{% endif %}",
-                    infoColor: "#d97706"
-                },
-                {% endfor %}
-            ],
-            upcoming: [
-                {% for o in upcoming_orders %}
-                {
-                    order_no: "{{ o.order_no }}",
-                    item_no: "{{ o.item_no }}",
-                    customer: "{{ o.customer_name }}",
-                    quantity: "{{ o.quantity or '-' }}",
-                    delivery_date: "{{ o.estimated_delivery_date.strftime('%d.%m.%Y') if o.estimated_delivery_date else '-' }}",
-                    info: "{{ o.remaining_days }} gün kaldı",
-                    infoColor: "#b45309"
-                },
-                {% endfor %}
-            ],
-            ontime: [
-                {% for o in ontime_orders %}
-                {
-                    order_no: "{{ o.order_no }}",
-                    item_no: "{{ o.item_no }}",
-                    customer: "{{ o.customer_name }}",
-                    quantity: "{{ o.quantity or '-' }}",
-                    delivery_date: "{{ o.estimated_delivery_date.strftime('%d.%m.%Y') if o.estimated_delivery_date else '-' }}",
-                    info: "Zamanında",
-                    infoColor: "#15803d"
-                },
-                {% endfor %}
-            ]
-        };
 
-        // Modalı Açma Fonksiyonu
-        function openRiskModal(category) {
-            const modal = document.getElementById('riskModal');
-            const titleElement = document.getElementById('modalTitle');
-            const tbody = document.getElementById('modalTableBody');
+        // Anlık Kart Filtreleme Fonksiyonu
+        let currentCardFilter = null;
+        
+        function filterByCard(cardType) {
+            const rows = document.querySelectorAll('.order-row');
+            const cards = document.querySelectorAll('.mini-stat-badge-clickable');
+            const tableTitle = document.getElementById('table-title-text');
+            const clearBtn = document.getElementById('clear-filter-btn');
             
-            // Başlığı tıklanan kategoriye göre dinamik yapıyoruz
-            let categoryTitle = "";
-            if (category === 'delayed') categoryTitle = "🔴 Gecikmiş Sipariş Detayları";
-            else if (category === 'critical') categoryTitle = "🟠 Kritik (0-2 Gün) Sipariş Detayları";
-            else if (category === 'upcoming') categoryTitle = "🟡 Yaklaşan (3-7 Gün) Sipariş Detayları";
-            else if (category === 'ontime') categoryTitle = "🟢 Zamanında Olan Sipariş Detayları";
+            // Kart çerçevelerini sıfırla
+            cards.forEach(c => {
+                c.style.borderColor = '#cbd5e1';
+                c.style.boxShadow = '';
+            });
             
-            titleElement.innerText = categoryTitle;
-            tbody.innerHTML = ""; // Eski listeyi temizle
-            
-            const orders = riskData[category];
-            
-            if (orders.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #94a3b8; padding: 20px;">Bu kategoride aktif sipariş bulunamadı.</td></tr>`;
+            if (currentCardFilter === cardType) {
+                // Filtreyi kaldır
+                currentCardFilter = null;
+                rows.forEach(r => r.style.display = '');
+                tableTitle.innerText = "Sipariş Takip & Detay Listesi";
+                clearBtn.style.display = 'none';
             } else {
-                orders.forEach(order => {
-                    const tr = document.createElement('tr');
-                    tr.style.borderBottom = "1px solid #f1f5f9";
-                    tr.innerHTML = `
-                        <td style="padding: 12px; font-size: 13.5px;"><strong>${order.order_no}</strong> <span style="color: #64748b; font-size: 11px;">(Kalem: ${order.item_no})</span></td>
-                        <td style="padding: 12px; font-size: 13.5px; color: #334155;">${order.customer}</td>
-                        <td style="padding: 12px; font-size: 13.5px; color: #334155;">${order.quantity}</td>
-                        <td style="padding: 12px; font-size: 13.5px; color: #334155;">${order.delivery_date}</td>
-                        <td style="padding: 12px; font-size: 13.5px; font-weight: 600; color: ${order.infoColor};">${order.info}</td>
-                    `;
-                    tbody.appendChild(tr);
+                currentCardFilter = cardType;
+                
+                // Seçilen kartı vurgula
+                const clickedCard = document.getElementById('card-' + cardType);
+                if (clickedCard) {
+                    clickedCard.style.borderColor = '#0f172a';
+                    clickedCard.style.boxShadow = '0 0 0 1px #0f172a';
+                }
+                
+                let title = "Sipariş Listesi";
+                if (cardType === 'open') title = "Açık Siparişler";
+                else if (cardType === 'delayed') title = "Geciken Siparişler";
+                else if (cardType === 'upcoming_7') title = "7 Günde Termini Gelen Siparişler";
+                else if (cardType === 'today') title = "Bugün Tamamlanacak Siparişler";
+                
+                tableTitle.innerText = title;
+                clearBtn.style.display = 'inline-block';
+                
+                rows.forEach(r => {
+                    let matches = false;
+                    if (cardType === 'open') {
+                        matches = r.getAttribute('data-is-open') === 'true';
+                    } else if (cardType === 'delayed') {
+                        matches = r.getAttribute('data-is-delayed') === 'true';
+                    } else if (cardType === 'upcoming_7') {
+                        matches = r.getAttribute('data-is-upcoming7') === 'true';
+                    } else if (cardType === 'today') {
+                        matches = r.getAttribute('data-is-today') === 'true';
+                    }
+                    
+                    if (matches) {
+                        r.style.display = '';
+                    } else {
+                        r.style.display = 'none';
+                    }
                 });
             }
-            
-            modal.style.display = "block"; // Modalı görünür yap
         }
-
-        // Modalı Kapatma Fonksiyonu
-        function closeRiskModal() {
-            document.getElementById('riskModal').style.display = "none";
-        }
-
-        // Modal dışına (karartılmış alana) tıklanırsa pencereyi kapat
-        window.onclick = function(event) {
-            const modal = document.getElementById('riskModal');
-            if (event.target === modal) {
-                modal.style.display = "none";
+        
+        function clearCardFilter() {
+            if (currentCardFilter) {
+                filterByCard(currentCardFilter); // will toggle it off
             }
         }
     </script>
-        <!-- Modal (Açılır Detay Penceresi) -->
-    <div id="riskModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <!-- Başlık JavaScript ile dinamik değişecek (Örn: Gecikmiş Sipariş Detayları) -->
-                <h2 id="modalTitle">Risk Detayları</h2>
-                <!-- Kapatma butonu (X) -->
-                <span class="close-btn" onclick="closeRiskModal()">&times;</span>
-            </div>
-            <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background-color: #f8fafc; text-align: left;">
-                            <th style="padding: 12px; border-bottom: 2px solid #e2e8f0; font-size: 13px; color: #475569;">Sipariş No</th>
-                            <th style="padding: 12px; border-bottom: 2px solid #e2e8f0; font-size: 13px; color: #475569;">Müşteri</th>
-                            <th style="padding: 12px; border-bottom: 2px solid #e2e8f0; font-size: 13px; color: #475569;">Miktar</th>
-                            <th style="padding: 12px; border-bottom: 2px solid #e2e8f0; font-size: 13px; color: #475569;">Teslim Tarihi</th>
-                            <th style="padding: 12px; border-bottom: 2px solid #e2e8f0; font-size: 13px; color: #475569;">Açıklama</th>
-                        </tr>
-                    </thead>
-                    <tbody id="modalTableBody">
-                        <!-- JS burayı dinamik sipariş satırlarıyla dolduracak -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 </body>
 </html>
