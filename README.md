@@ -52,7 +52,7 @@ Bu proje, küçük ve orta ölçekli üretim tesislerinde sipariş süreçlerini
 
 ---
 
-##  Klasör Yapısı
+##  Klasör  Yapısı
 
 ```
 üretim-asistanım/
