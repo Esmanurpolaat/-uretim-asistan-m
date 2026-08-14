@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        /* Genel Arayüz Tasarımı */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        /* Başlık Alanı */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Buton Stilleri */
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            background-color: #0f172a;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            border: 1px solid #0f172a;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .btn-add:hover { background-color: #1e293b; }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #475569;
+            background-color: white;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .btn-back:hover { background-color: #f1f5f9; color: #0f172a; }
+
+        /* Tablo Konteyneri */
+        .table-container {
+            background: white;
+            padding: 24px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            padding: 12px 14px;
+            border-bottom: 2px solid #cbd5e1;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 13px;
+        }
+
+        tbody tr:hover { background-color: #f8fafc; }
+
+        /* Reçete Versiyon Rozeti */
+        .badge-version {
+            display: inline-block;
+            background-color: #f1f5f9;
+            color: #475569;
+            font-weight: 700;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid #cbd5e1;
+        }
+
+        /* Fire Oranı Rozeti */
+        .badge-scrap {
+            display: inline-block;
+            background-color: #fff7ed;
+            color: #c2410c;
+            font-weight: 700;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #fcd34d;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px !important;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Başlık ve Butonlar -->
+        <div class="header-container">
+            <h1>Ürün Reçeteleri (BOM)</h1>
+            <div class="btn-group">
+                <a href="/recipes/new" class="btn-add">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Yeni Reçete Tanımla
+                </a>
+                <a href="/" class="btn-back">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Ana Sayfaya Dön
+                </a>
+            </div>
+        </div>
+
+        <!-- Hesaplama ve Özet Bölümü -->
+        {% set products_with_recipe = namespace(list=[]) %}
+        {% set total_scrap = namespace(value=0) %}
+        {% for r in recipes %}
+            {% if r.product and r.product.id not in products_with_recipe.list %}
+                {% set products_with_recipe.list = products_with_recipe.list + [r.product.id] %}
+            {% endif %}
+            {% if r.scrap_rate %}{% set total_scrap.value = total_scrap.value + r.scrap_rate %}{% endif %}
+        {% endfor %}
+        {% set avg_scrap = (total_scrap.value * 100 / recipes | length) if recipes | length > 0 else 0 %}
+
+        <!-- Özet Kartları -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Toplam Formül Sayısı</span>
+                <span style="font-size: 26px; font-weight: 800; color: #0f172a; margin-top: 4px;">{{ recipes | length }}</span>
+            </div>
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Tanımlı Ürün Sayısı</span>
+                <span style="font-size: 26px; font-weight: 800; color: #2563eb; margin-top: 4px;">{{ products_with_recipe.list | length }}</span>
+            </div>
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Ortalama Fire Oranı</span>
+                <span style="font-size: 26px; font-weight: 800; color: #ea580c; margin-top: 4px;">%{{ "{:.1f}".format(avg_scrap) }}</span>
+            </div>
+        </div>
+
+        <!-- Arama Filtresi -->
+        <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #64748b;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="searchInput" onkeyup="searchRecipes()" placeholder="Ürün adı, ürün kodu veya hammadde adına göre ara..." style="border: none; outline: none; width: 100%; font-size: 13.5px; font-family: inherit; color: #0f172a;">
+        </div>
+
+        <!-- Reçeteler Tablosu -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ürün Kodu</th>
+                            <th>Ürün Adı</th>
+                            <th>Gereken Hammadde</th>
+                            <th>Hammadde Kodu</th>
+                            <th>Gereken Miktar (Birim Başına)</th>
+                            <th>Fire Oranı (%)</th>
+                            <th>Reçete Versiyonu</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recipesTableBody">
+                        {% if recipes %}
+                            {% for recipe in recipes %}
+                                <tr class="recipe-row">
+                                    <td class="r-prodcode"><strong>{{ recipe.product.product_code }}</strong></td>
+                                    <td class="r-prodname">{{ recipe.product.product_name }}</td>
+                                    <td class="r-matname">{{ recipe.raw_material.material_name }}</td>
+                                    <td><code style="font-weight: 600; color: #0f172a;">{{ recipe.raw_material.material_code }}</code></td>
+                                    <td>
+                                        <strong>{{ "{:,.4f}".format(recipe.quantity_needed)|replace('.', ',') }}</strong> 
+                                        {{ recipe.raw_material.unit }}
+                                    </td>
+                                    <td>
+                                        <span class="badge-scrap">%{{ "{:,.1f}".format(recipe.scrap_rate * 100)|replace('.', ',') }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge-version">{{ recipe.version }}</span>
+                                    </td>
+                                    <td>
+                                        <a href="/recipes/{{ recipe.id }}/edit" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; color: #0f172a; background-color: #f1f5f9; font-weight: 700; font-size: 11px; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e1; transition: all 0.2s ease;">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                                <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
+                                            </svg>
+                                            Düzenle
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="8" class="no-data">
+                                    Sistemde henüz tanımlı ürün reçetesi (BOM) bulunmuyor.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dinamik Arama Scripti -->
+    <script>
+        function searchRecipes() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toLowerCase();
+            const rows = document.querySelectorAll(".recipe-row");
+            
+            rows.forEach(row => {
+                const prodCode = row.querySelector(".r-prodcode").innerText.toLowerCase();
+                const prodName = row.querySelector(".r-prodname").innerText.toLowerCase();
+                const matName = row.querySelector(".r-matname").innerText.toLowerCase();
+                
+                if (prodCode.includes(filter) || prodName.includes(filter) || matName.includes(filter)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

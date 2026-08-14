@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        /* Genel Arayüz Tasarımı */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+
+        /* Form Konteyneri */
+        .form-container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Hata Mesajı Kutusu */
+        .error-alert {
+            background-color: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Form Düzeni (Grid) */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Giriş Grupları */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Tüm Genişliği Kaplayan Alanlar */
+        .full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 600px) {
+            .full-width {
+                grid-column: span 1;
+            }
+        }
+
+        label {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        input, select {
+            padding: 10px 14px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            font-size: 13.5px;
+            color: #0f172a;
+            background-color: #ffffff;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+        }
+
+        /* Butonlar */
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 25px;
+        }
+
+        .btn-save {
+            background-color: #0f172a;
+            color: white;
+            border: 1px solid #0f172a;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-save:hover { background-color: #1e293b; }
+
+        .btn-cancel {
+            background-color: white;
+            color: #475569;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-cancel:hover { background-color: #f1f5f9; color: #0f172a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Yeni Stok Girişi (Lot Kaydı)</h1>
+
+        <div class="form-container">
+            <!-- Hata mesajı var ise gösterilecek alan -->
+            {% if error %}
+                <div class="error-alert">
+                    ⚠️ Hata: {{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Stok kaydetme rotasına yönlendiren form -->
+            <form method="post" action="/stocks/new">
+                <div class="form-grid">
+                    
+                    <!-- Hammadde Seçimi (Veritabanındaki aktif hammaddeler listelenir) -->
+                    <div class="form-group full-width">
+                        <label for="raw_material_id">Girişi Yapılacak Hammadde *</label>
+                        <select id="raw_material_id" name="raw_material_id" required>
+                            <option value="">-- Hammadde Seçin --</option>
+                            {% if raw_materials %}
+                                {% for material in raw_materials %}
+                                    <option value="{{ material.id }}">{{ material.material_code }} - {{ material.material_name }} ({{ material.unit }})</option>
+                                {% endfor %}
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <!-- Depo Adı -->
+                    <div class="form-group">
+                        <label for="warehouse_name">Depo Adı / Depolama Alanı *</label>
+                        <input type="text" id="warehouse_name" name="warehouse_name" 
+                               placeholder="Örn: Silo-1, A-Deposu" required>
+                    </div>
+
+                    <!-- Lot / Parti Numarası -->
+                    <div class="form-group">
+                        <label for="lot_number">Lot (Parti) Numarası *</label>
+                        <input type="text" id="lot_number" name="lot_number" 
+                               placeholder="Örn: LOT-PP001" required>
+                    </div>
+
+                    <!-- Giriş Yapılacak Fiziksel Miktar -->
+                    <div class="form-group full-width">
+                        <label for="physical_stock">Giriş Yapılacak Miktar (Fiziksel Stok) *</label>
+                        <input type="number" step="any" id="physical_stock" name="physical_stock" 
+                               placeholder="Örn: 2500" required min="0.01">
+                    </div>
+
+                </div>
+
+                <!-- Butonlar -->
+                <div class="btn-group">
+                    <a href="/stocks" class="btn-cancel">İptal</a>
+                    <button type="submit" class="btn-save">Stoğu Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

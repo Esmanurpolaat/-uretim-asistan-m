@@ -55,11 +55,11 @@ def seed_orders():
 
         # 5. ADIM: Ürün Reçetelerini (BOM) Eşleştir
         # Spunbond Kumaş (p1) reçetesi: 1 metre üretim için 0.95 kg Polipropilen, 0.05 kg Boya gerekir.
-        bom_p1_1 = Recipe(product_id=p1.id, raw_material_id=rm1.id, quantity_needed=0.95, scrap_rate=3.0, version="v1.0")
-        bom_p1_2 = Recipe(product_id=p1.id, raw_material_id=rm2.id, quantity_needed=0.05, scrap_rate=3.0, version="v1.0")
+        bom_p1_1 = Recipe(product_id=p1.id, raw_material_id=rm1.id, quantity_needed=0.95, scrap_rate=0.03, version="v1.0")
+        bom_p1_2 = Recipe(product_id=p1.id, raw_material_id=rm2.id, quantity_needed=0.05, scrap_rate=0.03, version="v1.0")
         
         # Meltblown Filtre (p2) reçetesi: 1 metre üretim için 1.00 kg Polipropilen gerekir. Boya istemez.
-        bom_p2 = Recipe(product_id=p2.id, raw_material_id=rm1.id, quantity_needed=1.00, scrap_rate=5.0, version="v1.0")
+        bom_p2 = Recipe(product_id=p2.id, raw_material_id=rm1.id, quantity_needed=1.00, scrap_rate=0.05, version="v1.0")
         
         db.add_all([bom_p1_1, bom_p1_2, bom_p2])
         db.flush()

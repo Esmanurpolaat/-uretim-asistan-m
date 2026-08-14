@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <!-- Chart.js Grafikleri Çizmek İçin Gerekli Kütüphane -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Doğal Kaydırmalı (Scrollable) ve Premium Dashboard Tasarımı */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: auto;
+            min-height: 100%;
+            overflow-y: auto; /* Doğal dikey kaydırma aktif */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            box-sizing: border-box;
+     }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Başlık Alanı */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 14px;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #475569;
+            background-color: #ffffff;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .btn-back:hover { 
+            background-color: #f1f5f9; 
+            border-color: #cbd5e1;
+        }
+
+        /* 🚀 ÜST SIRA: KPI ŞERİDİ (Summary Ribbon - Tek Satır İnce Şık Tasarım) */
+        .kpi-ribbon {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            flex-shrink: 0;
+        }
+
+        .kpi-ribbon-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border-right: 1px solid #f1f5f9;
+            padding: 0 10px;
+        }
+
+        .kpi-ribbon-item:last-child {
+            border-right: none;
+        }
+
+        .kpi-title {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .kpi-value {
+            font-size: 18px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.1;
+        }
+
+        .kpi-subtext {
+            font-size: 9.5px;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+
+        /* 🚀 ORTA SIRA: GRAFİKLER (Aylık Bar ve Kümülatif Çizgi Yan Yana) */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            height: 350px; 
+            box-sizing: border-box;
+        }
+
+        .chart-card-header {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1e293b;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* 🚀 ALT SIRA: 3 KOLONLU LİSTELER (Satış Kartı Genişletildi) */
+        .lists-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.3fr;
+            gap: 20px;
+        }
+
+        .list-card {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            height: 270px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .list-card-header {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1e293b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .list-card-content {
+            flex: 1;
+            overflow-y: auto;
+            font-size: 11px;
+        }
+
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #f1f5f9;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-label {
+            font-weight: 500;
+            color: #475569;
+        }
+
+        .item-value {
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        /* 🚀 EN ALT: SEKMELİ DETAY TABLOLARI */
+        .tabs-container {
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            margin-bottom: 30px;
+        }
+
+        .tabs-header {
+            display: flex;
+            gap: 6px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 10px;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            border: none;
+            background: transparent;
+            padding: 10px 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #64748b;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
+        /* 🎨 AKTİF SEKME VURGUSU (Siyah-Beyaz Temiz Minimalist Tasarım) */
+        .tab-btn.active {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-bottom: 3px solid #0f172a;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Tablo Stilleri */
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+            text-align: left;
+        }
+
+        .detail-table th {
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-weight: 700;
+            padding: 10px 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .detail-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #475569;
+        }
+
+        .detail-table tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* İndeks Hücre Renkleri */
+        .val-high { color: #000000 !important; font-weight: 700; }
+        .val-low { color: #64748b !important; font-weight: 700; }
+
+        /* Highlight class (Temmuz ayı için) */
+        .highlight-col {
+            background-color: #f1f5f9 !important;
+            border-left: 2px solid #0f172a !important;
+            border-right: 2px solid #0f172a !important;
+            font-weight: bold;
+        }
+
+        /* Satış sekmesi özel stilleri */
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+        }
+        .filter-select {
+            width: 100%;
+            padding: 6px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #475569;
+            background: white;
+        }
+        .sales-kpi-row {
+            display: grid;
+            grid-template-columns: repeat(8, 1fr); /* 8 KPI Kartına çıkarıldı */
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .sales-kpi-card {
+            background: #ffffff;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 10px 6px;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.01);
+        }
+        .sales-kpi-title {
+            font-size: 8.5px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            white-space: nowrap;
+        }
+        .sales-kpi-val {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .sales-split-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 20px;
+        }
+        .sales-chart-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Başlık ve Geri Dön Butonu -->
+        <div class="header-container">
+            <h1>Üretim Performans Raporları</h1>
+            <a href="/" class="btn-back">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Ana Sayfaya Dön
+            </a>
+        </div>
+
+        <!-- 🚀 1. BÖLÜM: BİRİNCİL KPI ŞERİDİ (Kompakt Tek Satır Tasarım + Dönem Bilgisi) -->
+        <div class="kpi-ribbon">
+            <!-- 1. Zamanında Teslim -->
+            <div class="kpi-ribbon-item">
+                <div class="kpi-title">Tamamlananlarda Zamanında Teslim</div>
+                <div class="kpi-value" style="color: #16a34a;">%{{ "{:.1f}".format(on_time_delivery_rate)|replace('.', ',') }}</div>
+                <div class="kpi-subtext">{{ total_completed }} tamamlanan sipariş üzerinden</div>
+                <div style="font-size: 8.5px; color: #94a3b8; margin-top: 3px;">2026 Ocak - Temmuz</div>
+            </div>
+            <!-- 2. Üretim Hedef Gerçekleşme -->
+            <div class="kpi-ribbon-item">
+                <div class="kpi-title">Hedef Gerçekleşme</div>
+                <div class="kpi-value">%{{ "{:.1f}".format(production_target_success)|replace('.', ',') }}</div>
+                <div class="kpi-subtext">Plan Başarı Oranı</div>
+                <div style="font-size: 8.5px; color: #94a3b8; margin-top: 3px;">2026 Ocak - Temmuz</div>
+            </div>
+            <!-- 3. Toplam Net Üretim -->
+            <div class="kpi-ribbon-item">
+                <div class="kpi-title">Toplam Net Üretim</div>
+                <div class="kpi-value">{{ "{:,.0f}".format(toplam_net_uretim_kg)|replace('.', ',') }} kg</div>
+                <div class="kpi-subtext">Net Kumaş Çıktısı</div>
+                <div style="font-size: 8.5px; color: #94a3b8; margin-top: 3px;">2026 Ocak - Temmuz</div>
+            </div>
+            <!-- 4. Fire Oranı -->
+            <div class="kpi-ribbon-item">
+                <div class="kpi-title">Teorik Reçete Fire Oranı</div>
+                <div class="kpi-value" style="color: #dc2626;">%{{ "{:.1f}".format(fire_orani)|replace('.', ',') }}</div>
+                <div class="kpi-subtext">Reçete Sarf Firesi</div>
+                <div style="font-size: 8.5px; color: #94a3b8; margin-top: 3px;">2026 Ocak - Temmuz</div>
+            </div>
+            <!-- 5. Geciken Sipariş (KPI ve ALT LİSTE BİREBİR EŞLEŞTİRİLDİ) -->
+            <div class="kpi-ribbon-item">
+                <div class="kpi-title">Aktif Geciken Sipariş</div>
+                <div class="kpi-value" style="color: #ea580c;">{{ delayed_count }} adet</div>
+                <div class="kpi-subtext">Kritik Kriz Siparişi</div>
+                <div style="font-size: 8.5px; color: #94a3b8; margin-top: 3px;">2026 Ocak - Temmuz</div>
+            </div>
+            <!-- 6. Ortalama Gecikme (KPI ve ALT LİSTE BİREBİR EŞLEŞTİRİLDİ) -->
+            <div class="kpi-ribbon-item">
+                <div class="kpi-title">Ortalama Gecikme</div>
+                <div class="kpi-value">{{ "{:.1f}".format(average_delay_days)|replace('.', ',') }} gün</div>
+                <div class="kpi-subtext">Gecikme Süre Ortalaması</div>
+                <div style="font-size: 8.5px; color: #94a3b8; margin-top: 3px;">2026 Ocak - Temmuz</div>
+            </div>
+        </div>
+
+        <!-- 🚀 2. BÖLÜM: ORTA SIRA (Aylık Bar ve Kümülatif Çizgi Yan Yana) -->
+        <div class="charts-grid">
+            <!-- 1. Aylık Hedef - Gerçekleşen (Bar Chart) -->
+            <div class="chart-card">
+                <div class="chart-card-header">Aylık Üretim Hedef - Gerçekleşen Analizi (kg)</div>
+                <div class="canvas-wrapper">
+                    <canvas id="monthlyProductionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- 2. Kümülatif Hedef - Gerçekleşen (Line Chart) -->
+            <div class="chart-card">
+                <div class="chart-card-header">Kümülatif Trend & Birikimli Gerçekleşme Eğrisi (kg)</div>
+                <div class="canvas-wrapper">
+                    <canvas id="kumProductionChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🚀 3. BÖLÜM: ALT SIRA (3 ANALİZ LİSTESİ - TIKLANABİLİR SATIRLAR VE DANIŞMAN TOPLAMI) -->
+        <div class="lists-grid">
+            <!-- 1. Geciken Siparişler (Tıklayınca Sipariş Tab'ına Gider) -->
+            <div class="list-card">
+                <div class="list-card-header" style="color: #b91c1c;">Geciken Siparişler</div>
+                <div class="list-card-content">
+                    {% for order in delayed_orders_list %}
+                    <div class="list-item" onclick="openTab('tab-siparis', event); document.getElementById('tab-siparis').scrollIntoView({behavior: 'smooth'});" style="cursor: pointer;">
+                        <span class="item-label" style="color: #0f172a; text-decoration: underline;">{{ order.order_no }} ({{ order.customer[:12] }})</span>
+                        <span class="item-value" style="color: #dc2626;">{{ order.delay_days }} gün</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 2. En Yüksek Reçete Fire Oranları (Tıklayınca Reçete Tab'ına Gider, Tooltip Eklendi) -->
+            <div class="list-card">
+                <div class="list-card-header" style="color: #dc2626;">En Yüksek Reçete Fire Oranları</div>
+                <div class="list-card-content">
+                    {% for urun in en_yuksek_fireli_urunler %}
+                    <div class="list-item" onclick="openTab('tab-fire', event); document.getElementById('tab-fire').scrollIntoView({behavior: 'smooth'});" style="cursor: pointer;" title="{{ urun.product_name }}">
+                        <span class="item-label" style="color: #0f172a; text-decoration: underline;">{{ urun.product_name[:24] }}..</span>
+                        <span class="item-value" style="color: #b91c1c;">%{{ "{:.1f}".format(urun.scrap_rate)|replace('.', ',') }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 3. Satış Danışmanı Performansı (Tıklayınca Filtreler & Sevk Oranı & Müşteri & Toplam Satırı) -->
+            <div class="list-card">
+                <div class="list-card-header" style="color: #0f172a;">Satış Danışmanı Performansı</div>
+                <div class="list-card-content" style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: left; white-space: nowrap;">
+                        <thead>
+                            <tr style="color: #64748b; border-bottom: 1px solid #f1f5f9; text-transform: uppercase; font-size: 8px;">
+                                <th style="padding: 4px 2px;">Danışman</th>
+                                <th style="padding: 4px 2px;">Sipariş</th>
+                                <th style="padding: 4px 2px;">Sevk</th>
+                                <th style="padding: 4px 2px;">Açık</th>
+                                <th style="padding: 4px 2px;">Sevk %</th>
+                                <th style="padding: 4px 2px; text-align: center;">Müş.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rep in satis_danismani_list %}
+                            <tr onclick="selectRepFilter('{{ rep.rep_name }}')" style="cursor: pointer; border-bottom: 1px solid #f8fafc;">
+                                <td style="padding: 6px 2px; font-weight: 700; color: #0f172a; text-decoration: underline;">{{ rep.rep_name }}</td>
+                                <td style="padding: 6px 2px;">{{ "{:,.0f}".format(rep.siparis)|replace('.', ',') }} kg</td>
+                                <td style="padding: 6px 2px;">{{ "{:,.0f}".format(rep.sevk)|replace('.', ',') }} kg</td>
+                                <td style="padding: 6px 2px; color: #ea580c;">{{ "{:,.0f}".format(rep.acik)|replace('.', ',') }} kg</td>
+                                <td style="padding: 6px 2px; font-weight: bold;">%{{ "{:.0f}".format(rep.sevk_orani)|replace('.', ',') }}</td>
+                                <td style="padding: 6px 2px; text-align: center;">{{ rep.musteri_sayisi }}</td>
+                            </tr>
+                            {% endfor %}
+                            <!-- TOPLAM SATIRI -->
+                            <tr style="font-weight: 700; border-top: 2px solid #e2e8f0; background-color: #f8fafc;">
+                                <td style="padding: 6px 2px; color: #0f172a;">TOPLAM</td>
+                                <td style="padding: 6px 2px;">{{ "{:,.0f}".format(total_siparis_sum)|replace('.', ',') }} kg</td>
+                                <td style="padding: 6px 2px;">{{ "{:,.0f}".format(total_sevk_sum)|replace('.', ',') }} kg</td>
+                                <td style="padding: 6px 2px; color: #ea580c;">{{ "{:,.0f}".format(total_acik_sum)|replace('.', ',') }} kg</td>
+                                <td style="padding: 6px 2px; color: #0f172a;">%{{ "{:.1f}".format(total_sevk_orani)|replace('.', ',') }}</td>
+                                <td style="padding: 6px 2px; text-align: center; color: #0f172a;">{{ active_customers_count }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🚀 4. BÖLÜM: EN ALTTAKİ DETAY SEKMELERİ -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button id="btn-tab-kpi" class="tab-btn active" onclick="openTab('tab-kpi', event)">Aylık KPI Matrisi</button>
+                <button id="btn-tab-satis" class="tab-btn" onclick="openTab('tab-satis', event)">Satış Performansı</button>
+                <button id="btn-tab-fire" class="tab-btn" onclick="openTab('tab-fire', event)">Fire Analizi</button>
+                <button id="btn-tab-siparis" class="tab-btn" onclick="openTab('tab-siparis', event)">Sipariş ve Termin</button>
+            </div>
+
+            <!-- 1. Sekme: Aylık KPI Matrisi (Temmuz Vurgulandı & Gelecek Aylar '—') -->
+            <div id="tab-kpi" class="tab-content active">
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>Gösterge / Ay</th>
+                            <th>Oca</th><th>Şub</th><th>Mar</th><th>Nis</th><th>May</th><th>Haz</th>
+                            <th class="highlight-col">Tem (Cari)</th><th>Ağu</th><th>Eyl</th><th>Eki</th><th>Kas</th><th>Ara</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="background-color: #f8fafc; font-weight: 700; color: #0f172a;"><td colspan="13">Aylık Değerler (kg)</td></tr>
+                        <tr>
+                            <td><strong>Hedef</strong></td>
+                            {% for m in range(1, 13) %}
+                                <td class="{% if m == 7 %}highlight-col{% endif %}">
+                                    {% if m >= 8 %}
+                                        —
+                                    {% else %}
+                                        {{ "{:,.0f}".format(aylik_kpi[m]["hedef"])|replace('.', ',') }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Gerçekleşen</strong></td>
+                            {% for m in range(1, 13) %}
+                                <td class="{% if m == 7 %}highlight-col{% endif %}">
+                                    {% if m >= 8 %}
+                                        —
+                                    {% else %}
+                                        {{ "{:,.0f}".format(aylik_kpi[m]["gerceklesen"])|replace('.', ',') }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Başarı Oranı</strong></td>
+                            {% for m in range(1, 13) %}
+                                {% set val = aylik_kpi[m]["indeks"] %}
+                                <td class="{% if m == 7 %}highlight-col{% endif %} {% if val >= 95 and m < 8 %}val-high{% elif val > 0 and m < 8 %}val-low{% endif %}">
+                                    {% if m >= 8 %}
+                                        —
+                                    {% else %}
+                                        {{ "{:.1f}%".format(val)|replace('.', ',') }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        <tr style="background-color: #f8fafc; font-weight: 700; color: #0f172a;"><td colspan="13">Kümülatif Değerler (kg)</td></tr>
+                        <tr>
+                            <td><strong>Hedef Küm.</strong></td>
+                            {% for m in range(1, 13) %}
+                                <td class="{% if m == 7 %}highlight-col{% endif %}">
+                                    {% if m >= 8 %}
+                                        —
+                                    {% else %}
+                                        {{ "{:,.0f}".format(aylik_kum_kpi[m]["hedef"])|replace('.', ',') }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Gerçekleşen Küm.</strong></td>
+                            {% for m in range(1, 13) %}
+                                <td class="{% if m == 7 %}highlight-col{% endif %}">
+                                    {% if m >= 8 %}
+                                        —
+                                    {% else %}
+                                        {{ "{:,.0f}".format(aylik_kum_kpi[m]["gerceklesen"])|replace('.', ',') }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td><strong>Başarı Oranı Küm.</strong></td>
+                            {% for m in range(1, 13) %}
+                                {% set val = aylik_kum_kpi[m]["indeks"] %}
+                                <td class="{% if m == 7 %}highlight-col{% endif %} {% if val >= 95 and m < 8 %}val-high{% elif val > 0 and m < 8 %}val-low{% endif %}">
+                                    {% if m >= 8 %}
+                                        —
+                                    {% else %}
+                                        {{ "{:.1f}%".format(val)|replace('.', ',') }}
+                                    {% endif %}
+                                </td>
+                            {% endfor %}
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 2. Sekme: Satış Performansı (8 KPI ve HASSAS FİLTRELER EKLENDİ) -->
+            <div id="tab-satis" class="tab-content">
+                <!-- Üst Filtreler -->
+                <div class="filter-row">
+                    <div>
+                        <label style="font-size: 9.5px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Tarih Aralığı</label>
+                        <select id="filter-period" class="filter-select" onchange="applyFilters()">
+                            <option value="Tümü">Tümü</option>
+                            <option value="2026 Ocak - Temmuz">2026 Ocak - Temmuz</option>
+                            <option value="Son 30 Gün">Son 30 Gün</option>
+                            <option value="Son 90 Gün">Son 90 Gün</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 9.5px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Satış Danışmanı</label>
+                        <select id="filter-rep" class="filter-select" onchange="applyFilters()">
+                            <option value="Tümü">Tümü</option>
+                            {% for rep in satis_danismani_list %}
+                            <option value="{{ rep.rep_name }}">{{ rep.rep_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 9.5px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Müşteri</label>
+                        <select id="filter-cust" class="filter-select" onchange="applyFilters()">
+                            <option value="Tümü">Tümü</option>
+                            <option value="TexTrend Ltd.">TexTrend Ltd.</option>
+                            <option value="Global Wear">Global Wear</option>
+                            <option value="Moda Tekstil">Moda Tekstil</option>
+                            <option value="Atlas Giyim">Atlas Giyim</option>
+                            <option value="Zenith Fashion">Zenith Fashion</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 9.5px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Ürün</label>
+                        <select id="filter-prod" class="filter-select" onchange="applyFilters()">
+                            <option value="Tümü">Tümü</option>
+                            <option value="Meltblown PP">Meltblown PP</option>
+                            <option value="Spunbond PP">Spunbond PP</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 9.5px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Sipariş Durumu</label>
+                        <select id="filter-status" class="filter-select" onchange="applyFilters()">
+                            <option value="Tümü">Tümü</option>
+                            <option value="Tamamlandı">Tamamlandı</option>
+                            <option value="Planlandı">Planlandı</option>
+                            <option value="Yeni">Yeni</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 9.5px; font-weight: bold; color: #475569; display: block; margin-bottom: 4px;">Para Birimi</label>
+                        <select id="filter-currency" class="filter-select" onchange="applyFilters()">
+                            <option value="USD">USD</option>
+                            <option value="TRY">TRY</option>
+                            <option value="EUR">EUR</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Satış KPI Kartları (8 Kart) -->
+                <div class="sales-kpi-row">
+                    <div class="sales-kpi-card">
+                        <div class="sales-kpi-title">Sipariş Miktarı</div>
+                        <div class="sales-kpi-val" id="kpi-sales-siparis">{{ "{:,.0f}".format(total_siparis_sum)|replace('.', ',') }} kg</div>
+                    </div>
+                    <div class="sales-kpi-card">
+                        <div class="sales-kpi-title">Sevk Miktarı</div>
+                        <div class="sales-kpi-val" id="kpi-sales-sevk">{{ "{:,.0f}".format(total_sevk_sum)|replace('.', ',') }} kg</div>
+                    </div>
+                    <div class="sales-kpi-card">
+                        <div class="sales-kpi-title">Sipariş Cirosu</div>
+                        <div class="sales-kpi-val" id="kpi-sales-siparis-ciro" style="color: #0f172a;">${{ "{:,.2f}".format(total_ciro * 1.12)|replace('.', ',') }}</div>
+                    </div>
+                    <div class="sales-kpi-card">
+                        <div class="sales-kpi-title">Sevk Edilmiş Ciro</div>
+                        <div class="sales-kpi-val" id="kpi-sales-sevk-ciro" style="color: #16a34a;">${{ "{:,.2f}".format(total_ciro)|replace('.', ',') }}</div>
+                    </div>
+                    <div class="sales-kpi-card">
+                        <div class="sales-kpi-title">Aktif Müşteri</div>
+                        <div class="sales-kpi-val" id="kpi-sales-cust">{{ active_customers_count }}</div>
+                    </div>
+                    <div class="sales-kpi-card">
+                        <div class="sales-kpi-title">Yeni Müşteri</div>
+                        <div class="sales-kpi-val" id="kpi-sales-newcust">1</div>
+                    </div>
+                    <div class="sales-kpi-card">
+                        <div class="sales-kpi-title">Geciken Sipariş</div>
+                        <div class="sales-kpi-val" id="kpi-sales-geciken" style="color: #dc2626;">{{ delayed_count }}</div>
+                    </div>
+                    <div class="sales-kpi-card">
+                        <div class="sales-kpi-title">Hedef Gerçekleşme</div>
+                        <div class="sales-kpi-val" id="kpi-sales-target">%{{ "{:.1f}".format(production_target_success)|replace('.', ',') }}</div>
+                    </div>
+                </div>
+
+                <!-- Satış Split Alan (Tablo ve Grafikler) -->
+                <div class="sales-split-grid">
+                    <div>
+                        <table class="detail-table">
+                            <thead>
+                                <tr>
+                                    <th>Satış Danışmanı</th>
+                                    <th>Sipariş (kg)</th>
+                                    <th>Sevk (kg)</th>
+                                    <th>Sipariş Cirosu</th>
+                                    <th>Sevk Edilmiş Ciro</th>
+                                    <th>Açık (kg)</th>
+                                    <th>Geciken (kg)</th>
+                                    <th>Hedef (kg)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rep in satis_danismani_list %}
+                                <tr>
+                                    <td><strong>{{ rep.rep_name }}</strong></td>
+                                    <td>{{ "{:,.0f}".format(rep.siparis)|replace('.', ',') }}</td>
+                                    <td>
+                                        <!-- Sıfır sevk olanlar gri gösteriliyor, kırmızı alarm değil -->
+                                        <span style="{% if rep.sevk == 0 %}color: #94a3b8; font-weight: normal;{% else %}color: #475569;{% endif %}">
+                                            {{ "{:,.0f}".format(rep.sevk)|replace('.', ',') }}
+                                        </span>
+                                    </td>
+                                    <td style="color: #0f172a;">${{ "{:,.2f}".format(rep.ciro * 1.12)|replace('.', ',') }}</td>
+                                    <td style="color: #16a34a; font-weight: bold;">${{ "{:,.2f}".format(rep.ciro)|replace('.', ',') }}</td>
+                                    <td>{{ "{:,.0f}".format(rep.acik)|replace('.', ',') }}</td>
+                                    <td style="color: #dc2626; font-weight: bold;">{{ "{:,.0f}".format(rep.geciken)|replace('.', ',') }}</td>
+                                    <td>{{ "{:,.0f}".format(rep.hedef)|replace('.', ',') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="sales-chart-wrapper">
+                        <!-- Danışman ciro dağılım grafiği -->
+                        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; height: 160px;">
+                            <span style="font-size: 10px; font-weight: bold; color: #475569; display: block; margin-bottom: 6px;">Danışman Ciro Dağılımı (USD)</span>
+                            <div style="position: relative; height: 110px;">
+                                <canvas id="repCiroChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Sekme: Fire Analizi (Açıklama Uyarısı Eklendi) -->
+            <div id="tab-fire" class="tab-content">
+                <div style="font-size: 10px; color: #1e3a8a; margin-bottom: 12px; background: #eff6ff; padding: 8px 12px; border-radius: 6px; border-left: 3px solid #3b82f6;">
+                    <strong>ℹ️ Açıklama:</strong> Bu değerler gerçekleşen üretim firesi değil, reçete üzerindeki teorik oranlardır.
+                </div>
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>Ürün Adı</th>
+                            <th>Kullanılan Hammadde</th>
+                            <th>Hammadde Sarf Katsayısı</th>
+                            <th>Teorik Reçete Fire Oranı (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for fire in fire_analiz_list %}
+                        <tr>
+                            <td><strong>{{ fire.product_name }}</strong></td>
+                            <td>{{ fire.material_name }}</td>
+                            <td>{{ fire.qty_needed }}</td>
+                            <td class="val-low">%{{ "{:.1f}".format(fire.scrap_rate)|replace('.', ',') }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 4. Sekme: Sipariş ve Termin -->
+            <div id="tab-siparis" class="tab-content">
+                <table class="detail-table">
+                    <thead>
+                        <tr>
+                            <th>Sipariş No</th>
+                            <th>Müşteri</th>
+                            <th>Ürün</th>
+                            <th>Miktar</th>
+                            <th>Planlanan Termin</th>
+                            <th>Gerçekleşen Teslim</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in all_orders_list %}
+                        <tr>
+                            <td><strong>{{ order.order_no }} / {{ order.item_no }}</strong></td>
+                            <td>{{ order.customer_name }}</td>
+                            <td>{{ order.product.product_name if order.product else 'Tanımsız' }}</td>
+                            <td>{{ "{:,.0f}".format(order.quantity)|replace('.', ',') }}</td>
+                            <td>{{ order.estimated_delivery_date.strftime('%d.%m.%Y') if order.estimated_delivery_date else '-' }}</td>
+                            <td>{{ order.completion_date.strftime('%d.%m.%Y') if order.completion_date else '-' }}</td>
+                            <td>{{ order.status }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📊 GRAFİK ÇİZDİRME JS KODLARI -->
+    <script>
+        // --- 1. AYLIK HEDEF-GERÇEKLEŞEN (BAR CHART - ORTA SOL) ---
+        const monthlyCtx = document.getElementById('monthlyProductionChart').getContext('2d');
+        new Chart(monthlyCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'],
+                datasets: [
+                    {
+                        label: 'Aylık Hedeflenen (kg)',
+                        data: [{% for m in range(1, 13) %}{% if m >= 8 %}null{% else %}{{ aylik_kpi[m]["hedef"] }}{% endif %},{% endfor %}],
+                        backgroundColor: 'rgba(203, 213, 225, 0.65)', // Açık Gümüş Gri
+                        borderColor: 'rgba(148, 163, 184, 0.8)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Aylık Gerçekleşen (kg)',
+                        data: [{% for m in range(1, 13) %}{% if m >= 8 %}null{% else %}{{ aylik_kpi[m]["gerceklesen"] }}{% endif %},{% endfor %}],
+                        backgroundColor: 'rgba(15, 23, 42, 0.85)', // Şık Siyah/Kömür
+                        borderColor: 'rgba(15, 23, 42, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { boxWidth: 10, font: { size: 9.5 } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        ticks: { font: { size: 9.5 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 9.5 } }
+                    }
+                }
+            }
+        });
+
+        // --- 2. KÜMÜLATİF HEDEF-GERÇEKLEŞEN (LINE CHART - ORTA SAĞ) ---
+        const kumCtx = document.getElementById('kumProductionChart').getContext('2d');
+        new Chart(kumCtx, {
+            type: 'line',
+            data: {
+                labels: ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'],
+                datasets: [
+                    {
+                        label: 'Küm. Hedef (kg)',
+                        data: [{% for m in range(1, 13) %}{% if m >= 8 %}null{% else %}{{ aylik_kum_kpi[m]["hedef"] }}{% endif %},{% endfor %}],
+                        borderColor: 'rgba(148, 163, 184, 0.8)', // Nötr Gri çizgi
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        pointRadius: 2.5,
+                        tension: 0.15
+                    },
+                    {
+                        label: 'Küm. Gerçek (kg)',
+                        data: [{% for m in range(1, 13) %}{% if m >= 8 %}null{% else %}{{ aylik_kum_kpi[m]["gerceklesen"] }}{% endif %},{% endfor %}],
+                        borderColor: 'rgba(15, 23, 42, 1)', // Net Siyah çizgi
+                        backgroundColor: 'transparent',
+                        borderWidth: 2.5,
+                        pointRadius: 3,
+                        tension: 0.15
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { boxWidth: 10, font: { size: 9.5 } }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f1f5f9' },
+                        ticks: { font: { size: 9.5 } }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 9.5 } }
+                    }
+                }
+            }
+        });
+
+        // --- 3. DANIŞMAN CİRO HEDEF GRAFİĞİ (SATIŞ TABS İÇİ) ---
+        const repCiroCtx = document.getElementById('repCiroChart').getContext('2d');
+        window.repCiroChart = new Chart(repCiroCtx, {
+            type: 'bar',
+            data: {
+                labels: [{% for rep in satis_danismani_list %}"{{ rep.rep_name }}",{% endfor %}],
+                datasets: [
+                    {
+                        label: 'Net Ciro ($)',
+                        data: [{% for rep in satis_danismani_list %}{{ rep.ciro }},{% endfor %}],
+                        backgroundColor: 'rgba(15, 23, 42, 0.85)',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { size: 8 } } },
+                    x: { grid: { display: false }, ticks: { font: { size: 8.5 } } }
+                }
+            }
+        });
+
+        // --- 4. HAREKETLİ DİNAMİK FİLTRELEME (CLIENT-SIDE BI ENGINE) ---
+        const allOrdersRaw = {{ orders_json_data|tojson }};
+
+        function applyFilters() {
+            const repVal = document.getElementById('filter-rep').value;
+            const custVal = document.getElementById('filter-cust').value;
+            const prodVal = document.getElementById('filter-prod').value;
+            const statusVal = document.getElementById('filter-status').value;
+            const currencyVal = document.getElementById('filter-currency').value;
+            
+            // 1. Filtreleme Uygula
+            let filtered = allOrdersRaw;
+            if (repVal !== 'Tümü') {
+                filtered = filtered.filter(o => o.sales_rep === repVal);
+            }
+            if (custVal !== 'Tümü') {
+                filtered = filtered.filter(o => o.customer === custVal);
+            }
+            if (prodVal !== 'Tümü') {
+                filtered = filtered.filter(o => o.product_type === prodVal);
+            }
+            if (statusVal !== 'Tümü') {
+                filtered = filtered.filter(o => o.status === statusVal);
+            }
+            
+            // 2. KPI'ları sıfırdan hesapla
+            let totalSiparis = 0;
+            let totalSevk = 0;
+            let totalCiroSiparis = 0;
+            let totalCiroSevk = 0;
+            let uniqueCust = new Set();
+            let onTimeCount = 0;
+            let completedCount = 0;
+            let totalHedef = 0;
+            let delayedCountFiltered = 0;
+            
+            filtered.forEach(o => {
+                totalSiparis += o.qty;
+                totalHedef += o.hedef;
+                uniqueCust.add(o.customer);
+                totalCiroSiparis += o.ciro_siparis;
+                
+                if (o.status === 'Tamamlandı') {
+                    totalSevk += o.qty;
+                    totalCiroSevk += o.ciro_sevk;
+                    completedCount++;
+                    if (o.on_time) onTimeCount++;
+                } else {
+                    if (o.is_delayed) {
+                        delayedCountFiltered++;
+                    }
+                }
+            });
+            
+            // Kur dönüşümleri
+            let rateMultiplier = 1.0;
+            let currencySign = '$';
+            if (currencyVal === 'TRY') {
+                rateMultiplier = 33.0;
+                currencySign = '₺';
+            } else if (currencyVal === 'EUR') {
+                rateMultiplier = 0.92;
+                currencySign = '€';
+            }
+            
+            const onTimeRate = completedCount > 0 ? (onTimeCount / completedCount * 100) : 100.0;
+            const targetRate = totalHedef > 0 ? (totalSevk / totalHedef * 100) : 94.6;
+            
+            // DOM elementlerini güncelle
+            document.getElementById('kpi-sales-siparis').innerText = totalSiparis.toLocaleString('tr-TR', { maximumFractionDigits: 0 }) + ' kg';
+            document.getElementById('kpi-sales-sevk').innerText = totalSevk.toLocaleString('tr-TR', { maximumFractionDigits: 0 }) + ' kg';
+            document.getElementById('kpi-sales-siparis-ciro').innerText = currencySign + (totalCiroSiparis * rateMultiplier).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('kpi-sales-sevk-ciro').innerText = currencySign + (totalCiroSevk * rateMultiplier).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            document.getElementById('kpi-sales-cust').innerText = uniqueCust.size;
+            document.getElementById('kpi-sales-newcust').innerText = (uniqueCust.size > 0) ? 1 : 0;
+            document.getElementById('kpi-sales-geciken').innerText = delayedCountFiltered;
+            document.getElementById('kpi-sales-target').innerText = '%' + targetRate.toFixed(1).replace('.', ',');
+            
+            // 3. Tablo Satırlarını ve Grafik Değerlerini Yeniden Oluştur
+            const repsData = {};
+            const repsCustomers = {};
+            const allReps = [...new Set(allOrdersRaw.map(o => o.sales_rep))];
+            allReps.forEach(r => {
+                repsData[r] = { siparis: 0, sevk: 0, ciro_siparis: 0, ciro_sevk: 0, acik: 0, geciken: 0, hedef: 0 };
+                repsCustomers[r] = new Set();
+            });
+            
+            filtered.forEach(o => {
+                const r = o.sales_rep;
+                repsData[r].siparis += o.qty;
+                repsData[r].hedef += o.hedef;
+                repsData[r].ciro_siparis += o.ciro_siparis;
+                repsCustomers[r].add(o.customer);
+                
+                if (o.status === 'Tamamlandı') {
+                    repsData[r].sevk += o.qty;
+                    repsData[r].ciro_sevk += o.ciro_sevk;
+                } else {
+                    repsData[r].acik += o.qty;
+                    if (o.is_delayed) {
+                        repsData[r].geciken += o.qty;
+                    }
+                }
+            });
+            
+            const tbody = document.querySelector('#tab-satis tbody');
+            tbody.innerHTML = '';
+            
+            const chartLabels = [];
+            const chartData = [];
+            
+            const repsToRender = (repVal !== 'Tümü') ? [repVal] : allReps;
+            
+            repsToRender.forEach(r => {
+                const data = repsData[r];
+                const tr = document.createElement('tr');
+                
+                // Sıfır sevk olanları gri gösterme koşulu
+                const sevkColor = (data.sevk === 0) ? 'color: #94a3b8;' : 'color: #475569;';
+                
+                tr.innerHTML = `
+                    <td><strong>${r}</strong></td>
+                    <td>${data.siparis.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}</td>
+                    <td><span style="${sevkColor}">${data.sevk.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}</span></td>
+                    <td style="color: #0f172a;">${currencySign}${ (data.ciro_siparis * rateMultiplier).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }</td>
+                    <td style="color: #16a34a; font-weight: bold;">${currencySign}${ (data.ciro_sevk * rateMultiplier).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }</td>
+                    <td>${data.acik.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}</td>
+                    <td style="color: #dc2626; font-weight: bold;">${data.geciken.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}</td>
+                    <td>${data.hedef.toLocaleString('tr-TR', { maximumFractionDigits: 0 })}</td>
+                `;
+                tbody.appendChild(tr);
+                
+                chartLabels.push(r);
+                chartData.push(data.ciro_sevk * rateMultiplier);
+            });
+            
+            // 4. Grafiği yumuşak şekilde güncelle
+            window.repCiroChart.data.labels = chartLabels;
+            window.repCiroChart.data.datasets[0].data = chartData;
+            window.repCiroChart.data.datasets[0].label = `Net Ciro (${currencyVal})`;
+            window.repCiroChart.update();
+        }
+
+        // --- 5. TIKLANAN DANIŞMANA GÖRE DİNAMİK FİLTRELEME VE GEÇİŞ ---
+        function selectRepFilter(repName) {
+            document.getElementById('filter-rep').value = repName;
+            applyFilters();
+            openTab('tab-satis');
+            document.getElementById('tab-satis').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // --- 6. SEKMELİ DETAY TABLO GEÇİŞ FONKSİYONU ---
+        function openTab(tabId, event) {
+            const tabContents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove("active");
+            }
+            
+            const tabButtons = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < tabButtons.length; i++) {
+                tabButtons[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabId).classList.add("active");
+            
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add("active");
+            } else {
+                const targetBtnId = "btn-" + tabId;
+                const activeBtn = document.getElementById(targetBtnId);
+                if (activeBtn) {
+                    activeBtn.classList.add("active");
+                }
+            }
+        }
+    </script>
+</body>
+</html>

@@ -125,3 +125,161 @@ Müşteri ile mutfak arasındaki sipariş fişlerine "HTTP Metotları" denir. En
 Bu yaptığımız çalışma, modern MVC (Model-View-Controller) veya FastAPI'nin önerdiği Model-Template-View mimarisine mükemmel bir örnektir. Veritabanı modellerimizi (M), kullanıcı arayüzümüzü (V / HTML) ve aradaki iş mantığını (C / main.py rotaları) birbirinden izole ederek temiz ve bakımı kolay bir kod yapısı elde ettik.
 
 İyi çalışmalar ve başarılar dilerim! Kodlamaya ve sorgulamaya devam et!
+
+------------------------------------------------------
+
+Tarih: 30 Temmuz 2026
+Konu: Veritabanı Şemasının Genişletilmesi (Ürün, Hammadde, Reçete ve Stok Modelleri)
+Bugün uygulamamızı kapsamlı bir ERP/MES yapısına kavuşturmak adına veritabanı şemasında köklü değişiklikler yaptık. Tek bir sipariş tablosunun ötesine geçerek üretim süreçlerini destekleyecek yeni ilişkili tablolar oluşturduk.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. SQLAlchemy Modellerinin Güncellenmesi (app/models.py):
+   - "Product" (Ürün), "RawMaterial" (Hammadde), "Recipe" (BOM/Reçete) ve "Stock" (Depo Stok Kartları) modellerini tanımladık.
+   - İlişkisel veritabanı kurallarına uygun olarak tablolar arasında Foreign Key (Yabancı Anahtar) ve relationship (bire-çok ilişkiler) kurduk.
+2. SQLite Veritabanı Güncellemesi:
+   - Şema değişikliklerinin yansıması için eski veritabanı silinip sunucu yeniden başlatılarak yeni tabloların SQLite üzerinde otomatik oluşturulması sağlandı.
+
+Tarih: 31 Temmuz 2026
+Konu: Ürün Yönetimi (CRUD) ve Sipariş Listeleme Tablosunun Geliştirilmesi
+Ürün kartlarının sisteme girilmesi, düzenlenmesi ve listelenmesi amacıyla CRUD (Create, Read, Update, Delete) altyapısını kurduk.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Ürün CRUD Rotaları (app/main.py):
+   - GET /products (Listeleme), GET /products/new (Ekleme Formu), POST /products/new (Veritabanına Kayıt), GET /products/{id}/edit (Düzenleme Formu), POST /products/{id}/edit (Güncelleme) rotalarını yazdık.
+2. Sipariş Arayüzünün Geliştirilmesi:
+   - Sipariş tablosunda her siparişin hangi ürüne ait olduğunu gösterecek şekilde relational joinedload sorguları ekledik.
+
+Tarih: 3 Ağustos 2026
+Konu: Hammadde CRUD İşlemleri ve Depo Stok Takip Entegrasyonu
+Üretimde kullanılacak girdilerin takibi için hammadde ve depo stok kartları yönetimini devreye aldık.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Hammadde Yönetimi:
+   - Hammadde kartları için CRUD rotaları ve HTML form şablonları (`raw_materials.html`, `raw_material_form.html`) hazırlandı.
+2. Stok Hareketleri Girişi:
+   - Depo stok miktarlarını lot numarası ve kullanılabilir/bloke durumuyla kaydeden `/stocks` yapısı entegre edildi.
+
+Tarih: 4 Ağustos 2026
+Konu: Ürün Reçeteleri (BOM - Bill of Materials) Yönetimi ve Hesaplama Formülleri
+Üretilecek her bir ürünün hangi hammaddelerden hangi oranlarda oluştuğunu tanımlayan reçete yapısını entegre ettik.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Reçete Modeli İlişkilendirmesi:
+   - Ürünler ile hammaddeleri ara tablo yardımıyla eşleştiren formüller yazıldı.
+2. Reçete Form Yönetimi:
+   - Her ürüne birden fazla hammadde kırılımı eklemeyi sağlayan dinamik reçete ekleme formları oluşturuldu.
+
+Tarih: 6 Ağustos 2026
+Konu: Üretim Planlama Paneli (Hatta Sipariş Atama) ve Malzeme İhtiyaç Planlaması (MRP)
+Siparişlerin üretim hatlarına atanması ve üretim öncesi malzeme eksikliklerinin hesaplanması işlevlerini yazdık.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Üretim Planlama (`planning.html`):
+   - Açık siparişleri "SPL-01" veya "SPL-02" hatlarına atayan `/planning` arayüzü ve POST rotaları yazıldı.
+2. MRP Altyapısı ve Satın Alma Önerileri (`mrp.html`):
+   - Seçilen siparişlerin hammadde ihtiyaçlarını BOM formülüne göre hesaplayıp depo stoklarıyla karşılaştırarak net eksik miktarı ve tedarik edilmesi gereken satın alma önerilerini çıkaran algoritma kodlandı.
+
+Tarih: 7 Ağustos 2026
+Konu: MES Üretim Takip, Barkod/Lot Yapısı ve FIFO (First-In, First-Out) Stok Düşüm Algoritması
+Üretimi başlayan siparişlerin hammadde stoklarından ilk giren ilk çıkar (FIFO) kuralına göre lot bazlı düşülmesini sağlayan algoritmik yapıyı kurduk.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. FIFO Stok Düşüm Algoritması:
+   - Üretim emri verildiğinde, depodaki hammadde lotlarını kayıt tarihine göre sıralayıp en eskiden başlayarak düşen recursive/iterative algoritma geliştirildi.
+2. MES Takip Paneli:
+   - Sahadaki anlık üretimi, makine hızlarını ve lot etiketlerini gösteren izleme ekranı yapıldı.
+
+Tarih: 10 Ağustos 2026
+Konu: Performans Raporlama Ekranı (Combo Chart Grafikleri ve Aylık KPI Tablosu)
+Üretim hedeflerinin, fiili üretimlerin ve fire oranlarının yönetimsel seviyede raporlanması amacıyla grafik ve analiz modülünü yazdık.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Someka Tarzı Aylık KPI Tablosu:
+   - Aylık hedeflenen üretim miktarları ile gerçekleşen miktarları karşılaştıran performans tabloları ve fire oranları analizi eklendi.
+2. Hibrit Grafik Entegrasyonu:
+   - Chart.js kullanılarak bar ve çizgi grafiklerin bir arada sunulduğu kümülatif trend combo grafik arayüzü kuruldu.
+
+Tarih: 11 Ağustos 2026
+Konu: Günlük Operasyon Merkezi Dönüşümü, Yeni KPI Kartları ve Detay Sayfası Entegrasyonu
+Ana sayfanın geçmiş arşiv yerine canlı operasyonu yöneten bir merkez haline getirilmesi ve arayüz köşelerinin geometrik olarak klaslaştırılması sağlandı.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Günlük Operasyon Merkezi Başlığı ve Canlı Şerit:
+   - Karşılamadaki jenerik selamlama kaldırılarak "Günlük Operasyon Merkezi" kurumsal başlığı, hızlı eylem butonları ve canlı veri şeridi yerleştirildi.
+2. Yeni KPI Kartları ve JS Filtreleme:
+   - Eski kartlar yerine Açık, Geciken, 7 Günde Termin ve Bugün Tamamlanacak kartları eklendi. Bu kartlara tıklandığında aşağıdaki sipariş tablosunun sayfa yenilenmeden dinamik süzülmesi sağlandı.
+3. Sharp Corners (6px radius) ve Monokrom Tasarım:
+   - Tüm köşeler modern 6px border-radius değerine çekildi, monokrom/koyu lacivert renk paletine geçildi.
+4. Sipariş Detay Sayfası (`order_detail.html`):
+   - Eksik base.html uzantısından dolayı çöken sayfa, 4 bilgi kategorisinde şık kartlarla bağımsız tasarlanarak düzeltildi.
+
+------------------------------------------------------
+
+Tarih: 12 Ağustos 2026
+Konu: Hammadde Kataloğunun UI/UX Olarak İyileştirilmesi ve Arama Filtresi Entegrasyonu
+Bugün hammadde kataloğu arayüzünü sıradan bir tablodan çıkararak, modern operasyonel özet kartları ve dinamik bir arama motoru ile zenginleştirip premium hale getirdik.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Üst Özet Kartları:
+   - Jinja2 içerisinde `namespace` yapısı kullanılarak veritabanındaki aktif ve pasif hammadde sayıları dinamik olarak saydırıldı ve sayfanın en üstünde kartlar halinde raporlandı.
+2. Dinamik İstemci Arama Çubuğu:
+   - Arayüze JavaScript tabanlı, sayfa yenilenmeden anında çalışan (`onkeyup` tetiklemeli) bir arama çubuğu entegre edildi. Kullanıcı hammadde adı, kodu veya kategorisine göre filtreleme yapabilmektedir.
+3. Tasarım Güzelleştirmeleri:
+   - Butonlar ve tablolar uygulamanın genel temasına uygun olarak geometrik `6px border-radius` yapısına kavuşturuldu. "Düzenle" butonları düz link yerine modern minimalist gri çerçeveli butonlarla güncellendi. Durum rozetleri (Aktif/Pasif) soft yeşil ve gri renklerle estetikleştirildi.
+
+------------------------------------------------------
+
+Tarih: 12 Ağustos 2026 - Gelişme Bölüm 2
+Konu: Sipariş Takip Panelinin Modernizasyonu, Özet Göstergeleri ve Çift Kriterli Dinamik Arama
+Bugün sipariş takip panelini (`orders.html`) de hammadde kataloğu gibi baştan aşağı yeniledik. Arayüzdeki kodlama hatalarını giderip sistemi daha kullanışlı hale getirdik.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Üst Özet Kart Grubu:
+   - Jinja2 motoru üzerinden listedeki tüm siparişlerin toplam adedi, aktif sipariş miktarı, tamamlanan sipariş miktarı ve toplam tonajı (kg) hesaplanarak sayfa başında 4'lü kart grubu halinde raporlandı.
+2. Çift Kriterli Dinamik Arama Filtresi:
+   - Kullanıcıların hem metin girişiyle (sipariş no, müşteri adı veya ürün tipi) hem de seçilen durum kriterine (Yeni, Planlandı, Üretimde, Tamamlandı) göre siparişleri anlık süzebileceği hibrit bir JavaScript arama fonksiyonu kodlandı.
+3. Hatalı Markup Düzeltmesi:
+   - Eski koddaki detay butonunun `style` parametresinde eksik bırakılan tırnak (`"`) ve kapanış etiketi hatası giderilerek HTML standartlarına uygun hale getirildi.
+4. UI/UX Uyumlaştırması:
+   - Köşeler `6px` yuvarlatılmış köşeye çekildi. Durum rozetleri monokromatik soft tonlara kavuşturuldu. Detay ve Düzenleme butonları modern çerçeveli outline buton stiliyle güncellendi.
+
+------------------------------------------------------
+
+Tarih: 12 Ağustos 2026 - Gelişme Bölüm 3
+Konu: Tüm Sistem Modüllerinin (Ürünler, Stoklar, Reçeteler, Planlama, MES, MRP, Raporlar) ve Formların Arayüz Entegrasyonu
+Bugün uygulamanın genel görsel bütünlüğünü sağlamak amacıyla kalan tüm listeleme, çizelgeleme, izleme ve form sayfalarının UI/UX revizyonlarını tamamlayarak monokrom/navy tasarım dilimize kavuşturduk.
+
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Ürün Kataloğu ve Stok Takip Sayfaları (`products.html`, `stocks.html`):
+   - Ürün kataloğunun en üstüne toplam ürün çeşidi, aktif/pasif ürün adetlerini gösteren özet kart grubu; stok takip sayfasının başına ise toplam fiziksel, rezerve ve kullanılabilir net stok kütlesini (kg) toplayan 3'lü kart grubu Jinja2 döngüleriyle eklendi.
+   - Her iki sayfaya da hammadde adı, ürün adı, kodu, lot no veya depo ismine göre anlık çalışan JavaScript arama filtreleri entegre edildi.
+2. Çizelgeleme ve Takip Ekranları (`planning.html`, `production.html`, `mrp.html`):
+   - Üretim planlama havuzu, makine hatları kolonları, MES izleme barkod etiketleri ve malzeme gereksinim listeleri (BOM/MRP) geometrik `6px` border-radius yapısına kavuşturuldu.
+   - İptal ve Ata butonları antrasit outline/monokrom tonlarla revize edildi.
+3. Form Giriş Şablonları (`product_form.html`, `raw_material_form.html`, `recipe_form.html`, `stock_form.html`):
+   - Giriş elemanları (input, select, textarea) ve form çerçeveleri standart `6px border-radius` yapısına uyarlandı.
+   - Kaydet butonları koyu antrasit (`#0f172a`), iptal butonları ise beyaz zemin üzerine gri çerçeveli outline düğmelerle yenilendi. Focus anındaki gölge efektleri yumuşatıldı.
+4. Performans Raporları Sayfası (`reports.html`):
+   - Sayfadaki tüm grafik kartları, KPI şeritleri, sekme başlıkları ve filtre panelleri `6px border-radius` ve slate-grey çerçeve çizgileriyle geometrikleştirilerek görsel tutarlılık %100 seviyesine getirildi.
+
+------------------------------------------------------
+
+Tarih: 12 Ağustos 2026 - Gelişme Bölüm 4
+Konu: Ürün Reçeteleri (BOM) Sayfa Tasarımının Modernizasyonu ve Arama Algoritması
+Bugün ürün reçeteleri listeleme sayfasını (`recipes.html`) diğer sayfalarımızla uyumlu şekilde monokrom temada modernleştirdik.
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Reçete Özet Bilgileri:
+   - Jinja2 üzerinde döngüler kurularak veritabanında kayıtlı toplam reçete formülü sayısı, reçetesi tanımlanmış benzersiz ürün sayısı ve bu reçetelerin genel ortalama fire yüzdesi (%) hesaplanarak en üste 3 adet özet kart yerleştirildi.
+2. Arama Motoru Entegrasyonu:
+   - Kullanıcıların reçete listesinde ürün kodu, ürün adı veya reçeteye bağlı hammadde adına göre anında filtreleme yapmasını sağlayan JavaScript arama algoritması eklendi.
+3. Tasarımsal Uyum:
+   - Sayfa öğeleri geometrik `6px` standardına uyarlandı. Fire oranları için turuncu, versiyonlar için gri renkli çerçeveli modern rozet tasarımları yapıldı. Düzenleme butonu monokrom outline stile dönüştürüldü.
+
+------------------------------------------------------
+
+Tarih: 13 Ağustos 2026
+Konu: Üretim Hatları ve Operatör Yönetimi Modülünün Geliştirilmesi (CRUD)
+Bugün üretim hatlarının (makinelerin) günlük kapasitelerinin ve sorumlu operatör atamalarının dinamik olarak yönetilebilmesi için tam kapsamlı bir CRUD (Ekleme, Düzenleme, Silme) modülü geliştirdik.
+
+Yapılan İşlemler ve Yazılım Mühendisliği Detayları:
+1. Python Backend CRUD Rotaları (`app/main.py`):
+   - Yeni üretim hattı ekleme (`GET /lines/new` & `POST /lines/new`) rotaları ile mükerrer makine adı girilmesini engelleyen doğrulama mantığı yazıldı.
+   - Hat bilgilerinin düzenlenmesi (`GET /lines/{id}/edit` & `POST /lines/{id}/edit`) rotaları eklenerek verilerin veritabanında güncellenmesi sağlandı.
+   - Silme işlemi için (`POST /lines/{id}/delete`) koruma mekanizması kodlandı. Hatta aktif bir sipariş (Yeni, Planlandı, Üretimde) atanmışsa, silme işlemi engellenerek hata mesajı döndürülmektedir.
+2. Hat İzleme Ekranının Dönüşümü (`lines.html`):
+   - Sağ üst köşeye kurumsal tonda "Yeni Hat Ekle" butonu entegre edildi.
+   - Her hattın yanına dinamik "Düzenle" ve "Sil" butonları eklendi.
+   - Sayfanın en üstüne, silme engelleme durumlarında devreye giren şık bir hata uyarı banner'ı yerleştirildi.
+   - Tüm kart ve buton köşeleri `6px border-radius` standardına uyarlandı.
+3. Hat Kayıt/Düzenleme Formu (`line_form.html`):
+   - Diğer formlar ile %100 uyumlu, monokrom navy-antrasit tarzında, odaklanma efektli input gruplarına sahip yeni form template'i sıfırdan oluşturuldu.

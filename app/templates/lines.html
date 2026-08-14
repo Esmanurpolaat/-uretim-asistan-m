@@ -24,17 +24,18 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 32px;
-            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #cbd5e1;
             padding-bottom: 20px;
         }
 
         h1 {
             margin: 0;
             color: #0f172a;
-            font-size: 26px;
+            font-size: 22px;
             font-weight: 800;
-            letter-spacing: -0.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         /* Geri Dön Butonu */
@@ -42,22 +43,38 @@
             display: inline-flex;
             align-items: center;
             text-decoration: none;
-            color: #2563eb;
-            font-weight: 600;
-            font-size: 14px;
-            padding: 8px 16px;
-            border-radius: 8px;
-            background: #eff6ff;
+            color: #475569;
+            background-color: white;
+            font-weight: 700;
+            font-size: 11px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
             transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .btn-back:hover {
-            background: #dbeafe;
-            transform: translateX(-3px);
+            background-color: #f1f5f9;
+            color: #0f172a;
         }
 
         .btn-back svg {
             margin-right: 8px;
+        }
+
+        /* Hata Bannerı */
+        .error-alert {
+            background-color: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 24px;
+            font-size: 13px;
+            font-weight: 600;
         }
 
         /* Kartların Alt Alta Sıralanma Düzeni */
@@ -70,11 +87,11 @@
         /* Yatay Makine Kart Tasarımı */
         .line-card {
             background: white;
-            border: 1px solid #e2e8f0;
-            border-radius: 16px;
-            padding: 20px 28px;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.03), 0 2px 4px -2px rgb(0 0 0 / 0.03);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 20px 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
         }
@@ -88,29 +105,28 @@
             width: 100%;
         }
 
-        /* Üzerine gelindiğinde sağa kayma efekti */
         .line-card:hover {
-            transform: translateX(6px);
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
-            border-color: #cbd5e1;
+            border-color: #0f172a;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
         }
 
         /* Sol Bölüm: Makine Kodu ve Operatör */
         .section-operator {
             display: flex;
-            align-items: center;
-            gap: 20px;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 12px;
         }
 
         .line-badge {
             background: #f1f5f9;
             color: #334155;
-            padding: 8px 16px;
-            border-radius: 10px;
+            padding: 6px 12px;
+            border-radius: 6px;
             font-weight: 800;
-            font-size: 16px;
+            font-size: 14px;
             border: 1px solid #cbd5e1;
-            min-width: 75px;
+            min-width: 60px;
             text-align: center;
         }
 
@@ -121,19 +137,19 @@
         }
 
         .avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 14px;
+            font-size: 12px;
             border: 1px solid rgba(0,0,0,0.05);
         }
 
         .operator-name {
-            font-size: 14px;
+            font-size: 13px;
             color: #475569;
             font-weight: 600;
         }
@@ -143,14 +159,14 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            border-left: 2px dashed #e2e8f0;
+            border-left: 1px dashed #cbd5e1;
             padding-left: 24px;
         }
 
         .info-row {
             display: flex;
             gap: 12px;
-            font-size: 14px;
+            font-size: 13px;
             color: #64748b;
         }
 
@@ -168,7 +184,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            border-left: 2px dashed #e2e8f0;
+            border-left: 1px dashed #cbd5e1;
             padding-left: 24px;
         }
 
@@ -179,41 +195,41 @@
         }
 
         .progress-label {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             letter-spacing: 0.5px;
         }
 
         .progress-percent {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 800;
         }
 
         .progress-container {
             width: 100%;
-            height: 10px;
+            height: 8px;
             background: #e2e8f0;
-            border-radius: 9999px;
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .progress-bar {
             height: 100%;
-            border-radius: 9999px;
-            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 4px;
+            transition: width 0.5s ease;
         }
 
         /* Doluluk Oranına Göre Dinamik Renkler */
         .bg-green {
-            background-color: #10b981; /* Güvenli */
+            background-color: #16a34a; /* Güvenli */
         }
 
         .bg-orange {
-            background-color: #f59e0b; /* Yoğun */
+            background-color: #ea580c; /* Yoğun */
         }
 
         .bg-red {
-            background-color: #ef4444; /* Aşırı Yüklü */
+            background-color: #dc2626; /* Aşırı Yüklü */
         }
 
         /* 📱 Mobil Cihazlar İçin Duyarlı Tasarım (Responsive) */
@@ -225,11 +241,8 @@
             .section-info, .section-progress {
                 border-left: none;
                 padding-left: 0;
-                border-top: 1px dashed #e2e8f0;
+                border-top: 1px dashed #cbd5e1;
                 padding-top: 12px;
-            }
-            .line-card:hover {
-                transform: translateY(-4px); /* Mobilde sağa kayma yerine hafif yukarı kalksın */
             }
         }
     </style>
@@ -238,15 +251,27 @@
     <div class="container">
         <!-- Üst Başlık Bölümü -->
         <div class="header">
-            <h1>Aktif Üretim Hatları & Kapasite Paneli</h1>
-            <a href="/" class="btn-back">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="19" y1="12" x2="5" y2="12"></line>
-                    <polyline points="12 19 5 12 12 5"></polyline>
-                </svg>
-                Ana Sayfaya Dön
-            </a>
+            <h1>Kapasite ve Hat İzleme</h1>
+            <div style="display: flex; gap: 10px;">
+                <a href="/lines/new" style="display: inline-flex; align-items: center; text-decoration: none; color: white; background-color: #0f172a; font-weight: 700; font-size: 11px; padding: 10px 16px; border-radius: 6px; border: 1px solid #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s;">
+                    + Yeni Hat Ekle
+                </a>
+                <a href="/" class="btn-back">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Ana Sayfaya Dön
+                </a>
+            </div>
         </div>
+
+        <!-- Hata Bildirim Alanı -->
+        {% if error %}
+            <div class="error-alert">
+                {{ error }}
+            </div>
+        {% endif %}
 
         <!-- Üretim Hatları Kart Liste Yapısı -->
         <div class="lines-grid">
@@ -263,14 +288,26 @@
                     <div class="line-card">
                         <!-- Kartın Üst Bölümü (3 Sütun) -->
                         <div class="line-card-main">
-                            <!-- 1. Sütun: Hat Kodu ve Operatör Bilgisi -->
+                            <!-- 1. Sütun: Hat Kodu, Düzenleme Eylemleri ve Operatör Bilgisi -->
                             <div class="card-section section-operator">
-                                <span class="line-badge">{{ line.line_name }}</span>
+                                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                    <span class="line-badge">{{ line.line_name }}</span>
+                                    <div style="display: flex; gap: 6px;">
+                                        <a href="/lines/{{ line.id }}/edit" style="display: inline-flex; align-items: center; text-decoration: none; color: #0f172a; background-color: #f1f5f9; font-weight: 700; font-size: 10.5px; padding: 4px 8px; border-radius: 6px; border: 1px solid #cbd5e1; transition: all 0.2s ease;">
+                                            Düzenle
+                                        </a>
+                                        <form action="/lines/{{ line.id }}/delete" method="post" style="display: inline;" onsubmit="return confirm('Bu üretim hattını silmek istediğinizden emin misiniz?');">
+                                            <button type="submit" style="display: inline-flex; align-items: center; color: #991b1b; background-color: #fee2e2; font-weight: 700; font-size: 10.5px; padding: 4px 8px; border-radius: 6px; border: 1px solid #fca5a5; cursor: pointer; transition: all 0.2s ease;">
+                                                Sil
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
                                 <div class="operator-info">
-                                    <div class="avatar" style="background-color: {% if color_class == 'bg-red' %}#fee2e2{% elif color_class == 'bg-orange' %}#fef3c7{% else %}#dbeafe{% endif %}; color: {% if color_class == 'bg-red' %}#ef4444{% elif color_class == 'bg-orange' %}#d97706{% else %}#2563eb{% endif %};">
+                                    <div class="avatar" style="border-radius: 6px; background-color: {% if color_class == 'bg-red' %}#fee2e2{% elif color_class == 'bg-orange' %}#fef3c7{% else %}#f1f5f9{% endif %}; color: {% if color_class == 'bg-red' %}#dc2626{% elif color_class == 'bg-orange' %}#ea580c{% else %}#475569{% endif %};">
                                         {{ line.operator_name[0] if line.operator_name else '?' }}
                                     </div>
-                                    <span class="operator-name">{{ line.operator_name or 'Atama Yapılmadı' }}</span>
+                                    <span class="operator-name">{{ line.operator_name or 'Operatör Atanmadı' }}</span>
                                 </div>
                             </div>
 
@@ -278,24 +315,24 @@
                             <div class="card-section section-info">
                                 <div class="info-row">
                                     <span class="info-label">Planlama Kapasitesi:</span>
-                                    <span class="info-value">{{ "{:,}".format(line.capacity) if line.capacity else '-' }} Adet/Metre</span>
+                                    <span class="info-value">{{ "{:,.0f}".format(line.capacity)|replace('.', ',') if line.capacity else '-' }} kg / gün</span>
                                 </div>
                                 <div class="info-row">
                                     <span class="info-label">Biriken Sipariş Yükü:</span>
-                                    <span class="info-value">{{ "{:,.1f}".format(line.active_load) }} Adet/Metre</span>
+                                    <span class="info-value">{{ "{:,.0f}".format(line.active_load)|replace('.', ',') }} kg</span>
                                 </div>
                             </div>
 
                             <!-- 3. Sütun: İlerleme Çubuğu ve Yüzde -->
                             <div class="card-section section-progress">
                                 <div class="progress-title-row">
-                                    <span class="progress-label" style="color: {% if color_class == 'bg-red' %}#ef4444{% elif color_class == 'bg-orange' %}#d97706{% else %}#10b981{% endif %};">
-                                        {% if color_class == 'bg-red' %}🔴 AŞIRI YÜKLÜ
-                                        {% elif color_class == 'bg-orange' %}🟡 YOĞUN YÜKLÜ
-                                        {% else %}🟢 NORMAL YÜK
+                                    <span class="progress-label" style="color: {% if color_class == 'bg-red' %}#dc2626{% elif color_class == 'bg-orange' %}#ea580c{% else %}#16a34a{% endif %};">
+                                        {% if color_class == 'bg-red' %}AŞIRI YÜKLÜ
+                                        {% elif color_class == 'bg-orange' %}YOĞUN YÜKLÜ
+                                        {% else %}NORMAL YÜK
                                         {% endif %}
                                     </span>
-                                    <span class="progress-percent" style="color: {% if color_class == 'bg-red' %}#b91c1c{% elif color_class == 'bg-orange' %}#b45309{% else %}#047857{% endif %};">
+                                    <span class="progress-percent" style="color: {% if color_class == 'bg-red' %}#991b1b{% elif color_class == 'bg-orange' %}#c2410c{% else %}#15803d{% endif %};">
                                         %{{ line.occupancy_rate }}
                                     </span>
                                 </div>
@@ -308,30 +345,30 @@
                         </div>
 
                         <!-- Kartın Alt Bölümü: Hat Detaylı Sipariş Görünümü -->
-                        <div style="margin-top: 16px; border-top: 1px dashed #e2e8f0; padding-top: 16px; width: 100%;">
+                        <div style="margin-top: 16px; border-top: 1px dashed #cbd5e1; padding-top: 16px; width: 100%;">
                             <div style="font-size: 11px; font-weight: 800; color: #64748b; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px;">
                                 Hattaki Aktif İş Yükü Detayı
                             </div>
                             {% if line.active_orders %}
                                 <div style="display: flex; flex-wrap: wrap; gap: 10px;">
                                     {% for o in line.active_orders %}
-                                        {% set dot_color = "#3b82f6" %} {# Yeni = Mavi #}
+                                        {% set dot_color = "#2563eb" %} {# Yeni = Mavi #}
                                         {% if o.status == 'Planlandı' %}
-                                            {% set dot_color = "#10b981" %} {# Planlandı = Yeşil #}
+                                            {% set dot_color = "#ea580c" %} {# Planlandı = Turuncu #}
                                         {% elif o.status == 'Üretimde' %}
-                                            {% set dot_color = "#ef4444" %} {# Üretimde = Kırmızı #}
+                                            {% set dot_color = "#16a34a" %} {# Üretimde = Yeşil #}
                                         {% endif %}
                                         
-                                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 12px; border-radius: 8px; font-size: 13px; display: inline-flex; align-items: center; gap: 8px; color: #334155;">
+                                        <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 12px; display: inline-flex; align-items: center; gap: 8px; color: #334155;">
                                             <span style="font-weight: 700; color: #1e293b;">{{ o.order_no }}</span>
-                                            <span style="color: #64748b;">({{ "{:,.0f}".format(o.quantity) }} mt)</span>
-                                            <span style="width: 7px; height: 7px; border-radius: 50%; background-color: {{ dot_color }}; display: inline-block;"></span>
-                                            <span style="font-weight: 600; font-size: 12px; color: #475569;">{{ o.status }}</span>
+                                            <span style="color: #64748b;">({{ "{:,.0f}".format(o.quantity)|replace('.', ',') }} kg)</span>
+                                            <span style="width: 6px; height: 6px; border-radius: 50%; background-color: {{ dot_color }}; display: inline-block;"></span>
+                                            <span style="font-weight: 600; font-size: 11px; color: #475569;">{{ o.status }}</span>
                                         </div>
                                     {% endfor %}
                                 </div>
                             {% else %}
-                                <div style="font-size: 13px; color: #94a3b8; font-style: italic;">
+                                <div style="font-size: 12.5px; color: #94a3b8; font-style: italic;">
                                     Hatta atanmış aktif sipariş bulunmamaktadır.
                                 </div>
                             {% endif %}
@@ -339,7 +376,7 @@
                     </div>
                 {% endfor %}
             {% else %}
-                <div style="text-align: center; color: #94a3b8; padding: 40px; background: white; border-radius: 16px; border: 1px solid #e2e8f0;">
+                <div style="text-align: center; color: #94a3b8; padding: 40px; background: white; border-radius: 6px; border: 1px solid #cbd5e1;">
                     Kayıtlı üretim hattı bulunamadı.
                 </div>
             {% endif %}

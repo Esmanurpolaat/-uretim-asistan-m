@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        /* Genel Arayüz Tasarımı */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+
+        /* Form Konteyneri */
+        .form-container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Hata Mesajı Kutusu */
+        .error-alert {
+            background-color: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Form Düzeni (Grid) */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Giriş Grupları */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Tüm Genişliği Kaplayan Alanlar */
+        .full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 600px) {
+            .full-width {
+                grid-column: span 1;
+            }
+        }
+
+        label {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        input, select {
+            padding: 10px 14px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            font-size: 13.5px;
+            color: #0f172a;
+            background-color: #ffffff;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+        }
+
+        /* Butonlar */
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 25px;
+        }
+
+        .btn-save {
+            background-color: #0f172a;
+            color: white;
+            border: 1px solid #0f172a;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-save:hover { background-color: #1e293b; }
+
+        .btn-cancel {
+            background-color: white;
+            color: #475569;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-cancel:hover { background-color: #f1f5f9; color: #0f172a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Rota Başlığı (Dinamik) -->
+        <h1>{% if product %}Ürün Düzenle{% else %}Yeni Ürün Ekle{% endif %}</h1>
+
+        <div class="form-container">
+            <!-- Hata var ise gösterilen şerit -->
+            {% if error %}
+                <div class="error-alert">
+                    ⚠️ Hata: {{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Rota Formu -->
+            <form method="post" action="{% if product %}/products/{{ product.id }}/edit{% else %}/products/new{% endif %}">
+                <div class="form-grid">
+                    
+                    <!-- Ürün Kodu -->
+                    <div class="form-group">
+                        <label for="product_code">Ürün Kodu *</label>
+                        <input type="text" id="product_code" name="product_code" 
+                               placeholder="Örn: URN-SPN01" required
+                               value="{{ product.product_code if product else '' }}">
+                    </div>
+
+                    <!-- Ürün Adı -->
+                    <div class="form-group">
+                        <label for="product_name">Ürün Adı *</label>
+                        <input type="text" id="product_name" name="product_name" 
+                               placeholder="Örn: Spunbond Kumaş" required
+                               value="{{ product.product_name if product else '' }}">
+                    </div>
+
+                    <!-- Ürün Grubu -->
+                    <div class="form-group">
+                        <label for="product_group">Ürün Grubu</label>
+                        <input type="text" id="product_group" name="product_group" 
+                               placeholder="Örn: Spunbond, Meltblown"
+                               value="{{ product.product_group if product and product.product_group else '' }}">
+                    </div>
+
+                    <!-- Ölçü Birimi -->
+                    <div class="form-group">
+                        <label for="unit">Ölçü Birimi</label>
+                        <select id="unit" name="unit">
+                            <option value="Metre" {% if product and product.unit == 'Metre' %}selected{% endif %}>Metre</option>
+                            <option value="Kg" {% if product and product.unit == 'Kg' %}selected{% endif %}>Kg</option>
+                            <option value="Adet" {% if product and product.unit == 'Adet' %}selected{% endif %}>Adet</option>
+                            <option value="Rulo" {% if product and product.unit == 'Rulo' %}selected{% endif %}>Rulo</option>
+                        </select>
+                    </div>
+
+                    <!-- Standart En -->
+                    <div class="form-group">
+                        <label for="standard_width">Standart En (cm)</label>
+                        <input type="number" step="any" id="standard_width" name="standard_width" 
+                               placeholder="Örn: 160"
+                               value="{{ product.standard_width if product and product.standard_width else '' }}">
+                    </div>
+
+                    <!-- Standart Gramaj -->
+                    <div class="form-group">
+                        <label for="grammage">Standart Gramaj (g/m²)</label>
+                        <input type="number" step="any" id="grammage" name="grammage" 
+                               placeholder="Örn: 40"
+                               value="{{ product.grammage if product and product.grammage else '' }}">
+                    </div>
+
+                    <!-- Üretilebildiği Hatlar -->
+                    <div class="form-group {% if product %}form-group{% else %}full-width{% endif %}">
+                        <label for="eligible_lines">Üretilebildiği Hatlar (Virgülle Ayırın)</label>
+                        <input type="text" id="eligible_lines" name="eligible_lines" 
+                               placeholder="Örn: SPL-01, SPL-02"
+                               value="{{ product.eligible_lines if product and product.eligible_lines else '' }}">
+                    </div>
+
+                    <!-- Durum (Sadece Düzenleme Modunda Görünür) -->
+                    {% if product %}
+                    <div class="form-group">
+                        <label for="is_active">Durum</label>
+                        <select id="is_active" name="is_active">
+                            <option value="true" {% if product.is_active %}selected{% endif %}>Aktif</option>
+                            <option value="false" {% if not product.is_active %}selected{% endif %}>Pasif</option>
+                        </select>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+                <!-- Butonlar -->
+                <div class="btn-group">
+                    <a href="/products" class="btn-cancel">İptal</a>
+                    <button type="submit" class="btn-save">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

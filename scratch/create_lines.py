@@ -13,7 +13,7 @@ def create_and_seed_lines():
         # 2. Adım: Yeni tabloyu oluşturuyoruz (Sorumlunun bahsettiği CREATE TABLE SQL komutu)
         cursor.execute("""
             CREATE TABLE production_lines (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+     a           id INTEGER PRIMARY KEY AUTOINCREMENT,
                 line_name TEXT NOT NULL,
                 capacity INTEGER,
                 operator_name TEXT

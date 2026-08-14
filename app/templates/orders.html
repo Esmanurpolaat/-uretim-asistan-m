@@ -9,19 +9,16 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f4f6f9;
-            color: #333;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 30px;
         }
 
         /* Ana kutu (container) tasarımı */
         .container {
-            max-width: 95%;
-            width: 1420px;
-            margin: 30px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            max-width: 1400px;
+            margin: 0 auto;
+            box-sizing: border-box;
         }
 
         /* Sayfa başlığı ve üst alan düzeni */
@@ -29,16 +26,16 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            border-bottom: 2px solid #f0f2f5;
-            padding-bottom: 15px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         h1 {
             margin: 0;
-            color: #1e293b;
+            color: #0f172a;
             font-size: 24px;
-            font-weight: 700;
+            font-weight: 800;
         }
 
         /* Geri Dön Butonu */
@@ -46,22 +43,35 @@
             display: inline-flex;
             align-items: center;
             text-decoration: none;
-            color: #4f46e5;
+            color: #475569;
+            background-color: white;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 12px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
             transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
         }
 
         .btn-back:hover {
-            color: #3730a3;
-            transform: translateX(-3px);
+            color: #0f172a;
+            background-color: #f1f5f9;
         }
 
         .btn-back svg {
-            margin-right: 8px;
+            margin-right: 6px;
         }
 
         /* Tablo Tasarımı */
+        .table-container {
+            background: white;
+            padding: 24px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
         .table-responsive {
             overflow-x: auto;
         }
@@ -70,25 +80,24 @@
             width: 100%;
             border-collapse: collapse;
             text-align: left;
-            margin-top: 10px;
         }
 
         th {
             background-color: #f8fafc;
-            color: #64748b;
-            font-weight: 600;
-            font-size: 11.5px;
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            padding: 12px 10px;
-            border-bottom: 2px solid #e2e8f0;
+            padding: 12px 14px;
+            border-bottom: 2px solid #cbd5e1;
         }
 
         td {
-            padding: 12px 10px;
+            padding: 12px 14px;
             border-bottom: 1px solid #e2e8f0;
             color: #334155;
-            font-size: 12.5px;
+            font-size: 13px;
         }
 
         /* Satırların üzerine gelindiğinde arka planın değişmesi */
@@ -103,32 +112,36 @@
         /* Durum Rozetleri (Badges) */
         .badge {
             display: inline-block;
-            padding: 6px 12px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 600;
-            text-align: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        /* Durum rengine göre farklı badge stilleri */
         .badge-yeni {
-            background-color: #92b8db;
-            color: #f4f5f6;
+            background-color: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1;
         }
 
         .badge-planlandi {
-            background-color: #4ae16f;
-            color: #f5f7f5;
+            background-color: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fcd34d;
         }
 
         .badge-uretimde {
-            background-color: #f14f4f;
-            color: #fcfbfb;
+            background-color: #dbeafe;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
         }
 
         .badge-tamamlandi {
-            background-color: #ed8dbf;
-            color: #f3f0f2;
+            background-color: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
         }
 
         /* Veri bulunamadığında gösterilecek mesaj stili */
@@ -142,23 +155,19 @@
 </head>
 <body>
     <div class="container">
-               <!-- Üst Başlık Bölümü -->
+        <!-- Üst Başlık Bölümü -->
         <div class="header">
             <h1>Sipariş Takip Paneli</h1>
-            <!-- Butonları yan yana hizalamak için flex kutusu kullanıyoruz -->
-            <div style="display: flex; gap: 15px; align-items: center;">
-                <!-- Yeşil renkli Yeni Sipariş Ekle Butonu -->
-                <a href="/orders/new" style="display: inline-flex; align-items: center; text-decoration: none; color: white; background-color: #10b981; font-weight: 600; font-size: 14px; padding: 8px 16px; border-radius: 8px; transition: all 0.2s ease;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <a href="/orders/new" style="display: inline-flex; align-items: center; text-decoration: none; color: white; background-color: #0f172a; font-weight: 600; font-size: 12px; padding: 10px 16px; border-radius: 6px; transition: all 0.2s ease; border: 1px solid #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                     </svg>
                     Yeni Sipariş Ekle
                 </a>
-                
-                <!-- Mevcut Geri Dön Butonu -->
                 <a href="/" class="btn-back">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 5 12 12 5"></polyline>
                     </svg>
@@ -166,119 +175,196 @@
                 </a>
             </div>
         </div>
+
+        <!-- Hesaplama ve Özet Bölümü -->
+        {% set total_qty = namespace(value=0) %}
+        {% set active_cnt = namespace(value=0) %}
+        {% set completed_cnt = namespace(value=0) %}
+        {% for o in orders %}
+            {% if o.quantity %}{% set total_qty.value = total_qty.value + o.quantity %}{% endif %}
+            {% if o.status in ['Yeni', 'Planlandı', 'Üretimde'] %}{% set active_cnt.value = active_cnt.value + 1 %}{% endif %}
+            {% if o.status == 'Tamamlandı' %}{% set completed_cnt.value = completed_cnt.value + 1 %}{% endif %}
+        {% endfor %}
+
+        <!-- Özet Kartları -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px;">
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Toplam Sipariş</span>
+                <span style="font-size: 26px; font-weight: 800; color: #0f172a; margin-top: 4px;">{{ orders | length }}</span>
+            </div>
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Aktif (Açık) Siparişler</span>
+                <span style="font-size: 26px; font-weight: 800; color: #2563eb; margin-top: 4px;">{{ active_cnt.value }}</span>
+            </div>
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Tamamlanan</span>
+                <span style="font-size: 26px; font-weight: 800; color: #16a34a; margin-top: 4px;">{{ completed_cnt.value }}</span>
+            </div>
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Toplam Tonaj (Açık+Biten)</span>
+                <span style="font-size: 26px; font-weight: 800; color: #0f172a; margin-top: 4px;">{{ "{:,.0f}".format(total_qty.value)|replace('.', ',') }} kg</span>
+            </div>
+        </div>
+
+        <!-- Gelişmiş Dinamik Arama & Filtre Paneli -->
+        <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; margin-bottom: 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+            <div style="display: flex; gap: 12px; align-items: center; border-right: 1px solid #cbd5e1; padding-right: 16px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #64748b;">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="searchInput" onkeyup="filterOrders()" placeholder="Sipariş no, müşteri veya ürün tipine göre ara..." style="border: none; outline: none; width: 100%; font-size: 13.5px; font-family: inherit; color: #0f172a;">
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center; padding-left: 8px;">
+                <span style="font-size: 13px; font-weight: 700; color: #475569; white-space: nowrap;">Durum Filtresi:</span>
+                <select id="statusFilter" onchange="filterOrders()" style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 6px 10px; font-family: inherit; width: 100%; outline: none; font-size: 13px; color: #0f172a;">
+                    <option value="ALL">Tüm Durumlar</option>
+                    <option value="Yeni">Yeni</option>
+                    <option value="Planlandı">Planlandı</option>
+                    <option value="Üretimde">Üretimde</option>
+                    <option value="Tamamlandı">Tamamlandı</option>
+                </select>
+            </div>
+        </div>
+
         <!-- Tablo Alanı -->
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Sipariş / Kalem</th>
-                        <th>Müşteri</th>
-                        <th>Satışçı (Pazar)</th>
-                        <th>Ürün</th>
-                        <th>En / Gramaj</th>
-                        <th>Miktar</th>
-                        <th>Fiyat / Toplam</th>
-                        <th>Öncelik</th>
-                        <th>Üretim Hattı</th>
-                        <th>Durum</th>
-                        <th>Termin / Teslim</th>
-                        <th>İşlemler</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Jinja2 döngüsü ile veritabanından gelen siparişleri listeliyoruz -->
-                    {% if orders %}
-                        {% for order in orders %}
-                            <tr>
-                                <td><strong>{{ order.order_no }}</strong> <span style="color: #64748b; font-size: 11px;">({{ order.item_no }})</span></td>
-                                <td>{{ order.customer_name }}</td>
-                                <td>
-                                    {{ order.sales_rep or '-' }} <br>
-                                    <span style="color: {% if order.market_type == 'Yurtdışı' %}#2563eb{% else %}#64748b{% endif %}; font-size: 11px; font-weight: 600;">
-                                        ({% if order.market_type == 'Yurtdışı' %}İhracat{% else %}İç Piyasa{% endif %})
-                                    </span>
-                                </td>
-                                <td>{{ order.product.product_name if order.product else '-' }}</td>
-                                <td>
-                                    {% if order.width or order.grammage %}
-                                        {{ "{:.0f}".format(order.width) if order.width else '-' }} cm / 
-                                        {{ "{:.0f}".format(order.grammage) if order.grammage else '-' }} g/m²
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if order.quantity %}
-                                        {{ "{:,.2f}".format(order.quantity) }}
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {{ "{:,.2f}".format(order.unit_price) }} {{ order.currency }} <br>
-                                    <span style="font-size: 11.5px; font-weight: 700; color: #0f172a;">
-                                        {% if order.quantity and order.unit_price %}
-                                            {{ "{:,.2f}".format(order.quantity * order.unit_price) }} {{ order.currency }}
+        <div class="table-container">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sipariş No</th>
+                            <th>Müşteri</th>
+                            <th>Satışçı</th>
+                            <th>Pazar</th>
+                            <th>Ürün</th>
+                            <th>Ebat / Gramaj</th>
+                            <th>Miktar</th>
+                            <th>Birim Fiyat</th>
+                            <th>Toplam Tutar</th>
+                            <th>Öncelik</th>
+                            <th>Hat</th>
+                            <th>Durum</th>
+                            <th>Termin</th>
+                            <th>Teslim Tarihi</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        {% if orders %}
+                            {% for order in orders %}
+                                <tr class="order-row" data-status="{{ order.status }}">
+                                    <td class="order-code"><strong>{{ order.order_no }}</strong> <span style="color: #64748b; font-size: 11px;">(Kalem: {{ order.item_no }})</span></td>
+                                    <td class="order-cust">{{ order.customer_name }}</td>
+                                    <td>{{ order.sales_rep or '-' }}</td>
+                                    <td>
+                                        {% if order.market_type == 'Yurtdışı' %}
+                                            <span style="color: #2563eb; font-weight: 600;">Yurtdışı</span>
                                         {% else %}
-                                            0.00 {{ order.currency }}
+                                            <span style="color: #16a34a; font-weight: 600;">Yurtiçi</span>
                                         {% endif %}
-                                    </span>
-                                </td>
-                                <td>
-                                    {% if order.priority == 'Yüksek' %}
-                                        <span style="color: #e11d48; font-weight: 700;">Yüksek</span>
-                                    {% elif order.priority == 'Orta' %}
-                                        <span style="color: #d97706; font-weight: 600;">Orta</span>
-                                    {% else %}
-                                        <span style="color: #475569;">Düşük</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ order.production_line or '-' }}</td>
-                                <td>
-                                    <!-- Siparişin durumuna göre dinamik badge sınıfı atıyoruz -->
-                                    {% if order.status == 'Yeni' %}
-                                        <span class="badge badge-yeni">{{ order.status }}</span>
-                                    {% elif order.status == 'Planlandı' %}
-                                        <span class="badge badge-planlandi">{{ order.status }}</span>
-                                    {% elif order.status == 'Üretimde' %}
-                                        <span class="badge badge-uretimde">{{ order.status }}</span>
-                                    {% elif order.status == 'Tamamlandı' or order.status == 'Teslim Edildi' %}
-                                        <span class="badge badge-tamamlandi">{{ order.status }}</span>
-                                    {% else %}
-                                        <span class="badge">{{ order.status }}</span>
-                                    {% endif %}
-                                </td>
-                                <!-- Tahmini ve Gerçek teslim tarihleri birleşik -->
-                                <td>
-                                    {{ order.estimated_delivery_date.strftime('%d.%m.%Y') if order.estimated_delivery_date else '-' }} <br>
-                                    <span style="font-size: 11px; color: #64748b;">
-                                        {{ order.actual_delivery_date.strftime('%d.%m.%Y') if order.actual_delivery_date else 'Bekliyor' }}
-                                    </span>
-                                </td>
-                                <!-- Düzenleme Butonu Hücresi -->
-                                <td>
-                                    <!-- order.id değeriyle her siparişin kendi düzenleme sayfasına (Örn: /orders/5/edit) yönlendiriyoruz -->
-                                    <a href="/orders/{{ order.id }}/edit" style="color: #2563eb; text-decoration: none; font-weight: 600; font-size: 13.5px; display: inline-flex; align-items: center; gap: 4px;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                            <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z"></path>
-                                        </svg>
-                                        Düzenle
-                                    </a>
+                                    </td>
+                                    <td class="order-prod">{{ order.product.product_name if order.product else '-' }}</td>
+                                    <td>
+                                        {% if order.width or order.grammage %}
+                                            {{ "{:.0f}".format(order.width) if order.width else '-' }} mm / 
+                                            {{ "{:.0f}".format(order.grammage) if order.grammage else '-' }} g/m²
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ "{:,.0f}".format(order.quantity)|replace('.', ',') if order.quantity else '-' }} kg</strong></td>
+                                    <td>{{ "{:,.2f}".format(order.unit_price)|replace('.', ',') }} {{ order.currency }}</td>
+                                    <td>
+                                        {% if order.quantity and order.unit_price %}
+                                            <strong>{{ "{:,.2f}".format(order.quantity * order.unit_price)|replace('.', ',') }} {{ order.currency }}</strong>
+                                        {% else %}
+                                            0,00 {{ order.currency }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if order.priority == 'Yüksek' %}
+                                            <span style="color: #dc2626; font-weight: 700;">Yüksek</span>
+                                        {% elif order.priority == 'Orta' %}
+                                            <span style="color: #ea580c; font-weight: 600;">Orta</span>
+                                        {% else %}
+                                            <span style="color: #475569;">Düşük</span>
+                                        {% endif %}
+                                    </td>
+                                    <td><strong>{{ order.production_line or '-' }}</strong></td>
+                                    <td>
+                                        {% if order.status == 'Yeni' %}
+                                            <span class="badge badge-yeni">{{ order.status }}</span>
+                                        {% elif order.status == 'Planlandı' %}
+                                            <span class="badge badge-planlandi">{{ order.status }}</span>
+                                        {% elif order.status == 'Üretimde' %}
+                                            <span class="badge badge-uretimde">{{ order.status }}</span>
+                                        {% elif order.status == 'Tamamlandı' or order.status == 'Teslim Edildi' %}
+                                            <span class="badge badge-tamamlandi">Tamamlandı</span>
+                                        {% else %}
+                                            <span class="badge">{{ order.status }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ order.estimated_delivery_date.strftime('%d.%m.%Y') if order.estimated_delivery_date else '-' }}</td>
+                                    <td>
+                                        {% if order.actual_delivery_date %}
+                                            <span style="color: #16a34a; font-weight: 600;">{{ order.actual_delivery_date.strftime('%d.%m.%Y') }}</span>
+                                        {% else %}
+                                            <span style="color: #64748b; font-style: italic;">Henüz sevk edilmedi</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 6px;">
+                                            <a href="/orders/{{ order.id }}/detail" style="display: inline-flex; align-items: center; gap: 4px; text-decoration: none; color: #0f172a; background-color: #f1f5f9; font-weight: 700; font-size: 11px; padding: 6px 10px; border-radius: 4px; border: 1px solid #cbd5e1; transition: all 0.2s ease;">
+                                                Detay
+                                            </a>
+                                            <a href="/orders/{{ order.id }}/edit" style="display: inline-flex; align-items: center; gap: 4px; text-decoration: none; color: #1e3a8a; background-color: #eff6ff; font-weight: 700; font-size: 11px; padding: 6px 10px; border-radius: 4px; border: 1px solid #bfdbfe; transition: all 0.2s ease;">
+                                                Düzenle
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="15" class="no-data">
+                                    Kayıtlı sipariş bulunamadı.
                                 </td>
                             </tr>
-                        {% endfor %}
-                    {% else %}
-                        <!-- Tabloda hiç veri yoksa gösterilecek alan -->
-                        <tr>
-                            <td colspan="12" class="no-data">
-                                Kayıtlı sipariş bulunamadı.
-                            </td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
+
+    <!-- Dinamik Filtreleme Scripti -->
+    <script>
+        function filterOrders() {
+            const searchInput = document.getElementById("searchInput");
+            const statusFilter = document.getElementById("statusFilter");
+            
+            const textFilter = searchInput.value.toLowerCase();
+            const selectedStatus = statusFilter.value;
+            
+            const rows = document.querySelectorAll(".order-row");
+            
+            rows.forEach(row => {
+                const code = row.querySelector(".order-code").innerText.toLowerCase();
+                const cust = row.querySelector(".order-cust").innerText.toLowerCase();
+                const prod = row.querySelector(".order-prod").innerText.toLowerCase();
+                const status = row.getAttribute("data-status");
+                
+                const matchesText = code.includes(textFilter) || cust.includes(textFilter) || prod.includes(textFilter);
+                const matchesStatus = (selectedStatus === "ALL") || (status === selectedStatus);
+                
+                if (matchesText && matchesStatus) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
 </body>
 </html>

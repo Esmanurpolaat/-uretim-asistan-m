@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        /* Genel Arayüz Tasarımı - Premium MES */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            box-sizing: border-box;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Başlık Alanı */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 14px;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #475569;
+            background-color: #ffffff;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .btn-back:hover { 
+            background-color: #f1f5f9; 
+            color: #0f172a;
+        }
+
+        /* Panel Başlıkları */
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Tablo Konteyneri */
+        .table-container {
+            background: white;
+            padding: 24px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            border: 1px solid #cbd5e1;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            padding: 12px 14px;
+            border-bottom: 2px solid #cbd5e1;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 13px;
+        }
+
+        tbody tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Barkod Stil */
+        .barcode-tag {
+            font-family: 'Courier New', Courier, monospace;
+            background: #f1f5f9;
+            color: #0f172a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            border: 1px solid #cbd5e1;
+            font-size: 11px;
+        }
+
+        /* Onay Formu Düzeni */
+        .confirm-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .confirm-form input {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            font-size: 12.5px;
+            width: 110px;
+            background-color: #ffffff;
+            outline: none;
+            transition: border-color 0.2s;
+            color: #0f172a;
+        }
+
+        .confirm-form input:focus {
+            border-color: #0f172a;
+        }
+
+        .btn-confirm {
+            background: #0f172a;
+            color: white;
+            border: 1px solid #0f172a;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 11.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-confirm:hover { background: #1e293b; }
+
+        /* Durum Rozeti */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-active {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .badge-completed {
+            background-color: #dcfce7;
+            color: #16a34a;
+            border: 1px solid #bbf7d0;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px !important;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Başlık ve Geri Dön Butonu -->
+        <div class="header-container">
+            <h1>Üretim Takip ve MES Onay Paneli</h1>
+            <a href="/" class="btn-back">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Ana Sayfaya Dön
+            </a>
+        </div>
+
+        <!-- Hesaplama ve Özet Bölümü -->
+        {% set total_active_qty = namespace(value=0) %}
+        {% for o in active_orders %}
+            {% if o.quantity %}{% set total_active_qty.value = total_active_qty.value + o.quantity %}{% endif %}
+        {% endfor %}
+
+        <!-- Özet Kartları -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Aktif Üretimdeki Siparişler</span>
+                <span style="font-size: 26px; font-weight: 800; color: #2563eb; margin-top: 4px;">{{ active_orders | length }}</span>
+            </div>
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Üretimde Bekleyen Hacim</span>
+                <span style="font-size: 26px; font-weight: 800; color: #0f172a; margin-top: 4px;">{{ "{:,.0f}".format(total_active_qty.value)|replace('.', ',') }} kg</span>
+            </div>
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Toplam Tamamlanan</span>
+                <span style="font-size: 26px; font-weight: 800; color: #16a34a; margin-top: 4px;">{{ completed_orders | length }}</span>
+            </div>
+        </div>
+
+        <!-- 🚀 BÖLÜM 1: ÜRETİMDEKİ SİPARİŞLER (ONAY BEKLEYENLER) -->
+        <div class="section-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #2563eb;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Makinelerde Üretimde Olan Siparişler (MES Onay Bekleyenler)
+        </div>
+        <div class="table-container" style="border-left: 4px solid #2563eb;">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Üretim Hattı</th>
+                            <th>Barkod / Lot No</th>
+                            <th>Sipariş / Kalem</th>
+                            <th>Ürün Adı</th>
+                            <th>Planlanan Miktar</th>
+                            <th>Termin Tarihi</th>
+                            <th>Üretim Onay Girişi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if active_orders %}
+                            {% for order in active_orders %}
+                                <tr>
+                                    <td><span class="badge badge-active">{{ order.production_line }}</span></td>
+                                    <td><span class="barcode-tag">LOT-{{ order.order_no }}-{{ order.item_no }}</span></td>
+                                    <td><strong>{{ order.order_no }} / {{ order.item_no }}</strong></td>
+                                    <td>{{ order.product.product_name }}</td>
+                                    <td>{{ "{:,.0f}".format(order.quantity)|replace('.', ',') }} {{ order.product.unit }}</td>
+                                    <td>{{ order.estimated_delivery_date.strftime('%d.%m.%Y') if order.estimated_delivery_date else '-' }}</td>
+                                    <td>
+                                        <!-- MES Üretim Onay Formu -->
+                                        <form class="confirm-form" action="/production/onayla" method="post" onsubmit="return confirm('Bu siparişi tamamlamak ve depodan malzeme düşmek istediğinize emin misiniz?');">
+                                            <input type="hidden" name="siparis_id" value="{{ order.id }}">
+                                            
+                                            <input type="number" step="0.01" name="uretilen_miktar" placeholder="Üretilen (kg)" required min="0">
+                                            <input type="number" step="0.01" name="fire_miktari" placeholder="Fire (kg)" required min="0">
+                                            
+                                            <button type="submit" class="btn-confirm">✓ Üretimi Tamamla</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="no-data">Makinelerde şu an aktif üretim bulunmuyor. Planlama ekranından sipariş atayabilirsiniz.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 🚀 BÖLÜM 2: TAMAMLANMIŞ ÜRETİMLER -->
+        <div class="section-title" style="color: #16a34a;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Tamamlanan Üretimler ve Geçmiş Kayıtlar
+        </div>
+        <div class="table-container" style="border-left: 4px solid #16a34a;">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Üretim Hattı</th>
+                            <th>Barkod / Lot No</th>
+                            <th>Sipariş / Kalem</th>
+                            <th>Ürün Adı</th>
+                            <th>Üretilen Miktar</th>
+                            <th>Tamamlanma Tarihi</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if completed_orders %}
+                            {% for order in completed_orders %}
+                                <tr>
+                                    <td><span class="badge badge-completed">{{ order.production_line }}</span></td>
+                                    <td><span class="barcode-tag">LOT-{{ order.order_no }}-{{ order.item_no }}</span></td>
+                                    <td><strong>{{ order.order_no }} / {{ order.item_no }}</strong></td>
+                                    <td>{{ order.product.product_name }}</td>
+                                    <td><strong>{{ "{:,.0f}".format(order.quantity)|replace('.', ',') }}</strong> {{ order.product.unit }}</td>
+                                    <td>{{ order.completion_date.strftime('%d.%m.%Y') if order.completion_date else '-' }}</td>
+                                    <td>
+                                        <span class="badge badge-completed">✓ Tamamlandı</span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="no-data">Henüz tamamlanmış bir üretim kaydı bulunmuyor.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

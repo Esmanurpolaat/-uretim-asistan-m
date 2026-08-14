@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        /* Genel Arayüz Tasarımı */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        /* Başlık Alanı */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Buton Stilleri */
+        .btn-add {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: white;
+            background-color: #0f172a;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            border: 1px solid #0f172a;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .btn-add:hover { background-color: #1e293b; }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #475569;
+            background-color: white;
+            font-weight: 600;
+            font-size: 12px;
+            padding: 10px 16px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .btn-back:hover { background-color: #f1f5f9; color: #0f172a; }
+
+        /* Kritik Stok Uyarı Kartı */
+        .alert-card {
+            background-color: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .alert-title {
+            font-weight: 800;
+            font-size: 13px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .alert-item {
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        /* Tablo Konteyneri */
+        .table-container {
+            background: white;
+            padding: 24px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: #0f172a;
+            font-weight: 700;
+            font-size: 11px;
+            text-transform: uppercase;
+            padding: 12px 14px;
+            border-bottom: 2px solid #cbd5e1;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #334155;
+            font-size: 13px;
+        }
+
+        tbody tr:hover { background-color: #f8fafc; }
+
+        /* Kritik Durum Etiketi */
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-danger {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fca5a5;
+        }
+
+        .badge-warning {
+            background-color: #fff7ed;
+            color: #c2410c;
+            border: 1px solid #fcd34d;
+        }
+
+        .badge-normal {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .no-data {
+            text-align: center;
+            color: #94a3b8;
+            padding: 40px !important;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Başlık ve Butonlar -->
+        <div class="header-container">
+            <h1>Depo Stok Takip Paneli</h1>
+            <div class="btn-group">
+                <a href="/stocks/new" class="btn-add">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Yeni Stok Girişi (Lotlu)
+                </a>
+                <a href="/" class="btn-back">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Ana Sayfaya Dön
+                </a>
+            </div>
+        </div>
+
+        <!-- 🚨 KRİTİK STOK UYARI PANELİ -->
+        {% set critical_alerts = [] %}
+        {% if raw_materials %}
+            {% for material in raw_materials %}
+                {% set total_usable = namespace(value=0) %}
+                {% for stock in stocks %}
+                    {% if stock.raw_material_id == material.id %}
+                        {% set total_usable.value = total_usable.value + stock.usable_stock %}
+                    {% endif %}
+                {% endfor %}
+                {% if total_usable.value < material.safety_stock %}
+                    {% set _ = critical_alerts.append(material.material_name + " (Mevcut: " + "{:,.0f}".format(total_usable.value)|replace('.', ',') + " " + material.unit + " / Emniyet Stoğu: " + "{:,.0f}".format(material.safety_stock)|replace('.', ',') + " " + material.unit + ")") %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        {% if critical_alerts %}
+            <div class="alert-card">
+                <div class="alert-title">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    Kritik Stok Uyarısı (Emniyet Stoğu Altındaki Hammaddeler)
+                </div>
+                {% for alert in critical_alerts %}
+                    <div class="alert-item">⚠️ {{ alert }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Hesaplama ve Özet Bölümü -->
+        {% set total_phys = namespace(value=0) %}
+        {% set total_res = namespace(value=0) %}
+        {% set total_use = namespace(value=0) %}
+        {% for s in stocks %}
+            {% if s.physical_stock %}{% set total_phys.value = total_phys.value + s.physical_stock %}{% endif %}
+            {% if s.reserved_stock %}{% set total_res.value = total_res.value + s.reserved_stock %}{% endif %}
+            {% if s.usable_stock %}{% set total_use.value = total_use.value + s.usable_stock %}{% endif %}
+        {% endfor %}
+
+        <!-- Özet Kartları -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Toplam Fiziksel Stok</span>
+                <span style="font-size: 26px; font-weight: 800; color: #0f172a; margin-top: 4px;">{{ "{:,.0f}".format(total_phys.value)|replace('.', ',') }} kg</span>
+            </div>
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Toplam Rezerve Stok</span>
+                <span style="font-size: 26px; font-weight: 800; color: #ea580c; margin-top: 4px;">{{ "{:,.0f}".format(total_res.value)|replace('.', ',') }} kg</span>
+            </div>
+            <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; display: flex; flex-direction: column; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+                <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">Kullanılabilir Net Stok</span>
+                <span style="font-size: 26px; font-weight: 800; color: #16a34a; margin-top: 4px;">{{ "{:,.0f}".format(total_use.value)|replace('.', ',') }} kg</span>
+            </div>
+        </div>
+
+        <!-- Arama Filtresi -->
+        <div style="background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 16px; margin-bottom: 20px; display: flex; gap: 12px; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: #64748b;">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" id="searchInput" onkeyup="searchStocks()" placeholder="Hammadde adı, kodu, lot no veya depo adına göre ara..." style="border: none; outline: none; width: 100%; font-size: 13.5px; font-family: inherit; color: #0f172a;">
+        </div>
+
+        <!-- Stok Detay Tablosu -->
+        <div class="table-container">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hammadde Kodu</th>
+                            <th>Hammadde Adı</th>
+                            <th>Depo Adı / Yeri</th>
+                            <th>Lot (Parti) No</th>
+                            <th>Fiziksel Stok</th>
+                            <th>Rezerve Stok</th>
+                            <th>Kullanılabilir Net Stok</th>
+                            <th>Birim</th>
+                            <th>Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stocksTableBody">
+                        {% if stocks %}
+                            {% for stock in stocks %}
+                                <tr class="stock-row">
+                                    <td class="s-code"><strong>{{ stock.raw_material.material_code }}</strong></td>
+                                    <td class="s-name">{{ stock.raw_material.material_name }}</td>
+                                    <td class="s-wh">{{ stock.warehouse_name }}</td>
+                                    <td class="s-lot"><code style="font-size: 11.5px; font-weight: bold; background: #f1f5f9; padding: 4px 8px; border-radius: 4px; color: #0f172a; border: 1px solid #cbd5e1;">{{ stock.lot_number or 'LOTSUZ' }}</code></td>
+                                    <td>{{ "{:,.2f}".format(stock.physical_stock)|replace('.', ',') }}</td>
+                                    <td>{{ "{:,.2f}".format(stock.reserved_stock)|replace('.', ',') }}</td>
+                                    <td style="font-weight: 700; color: #0f172a;">{{ "{:,.2f}".format(stock.usable_stock)|replace('.', ',') }}</td>
+                                    <td>{{ stock.raw_material.unit }}</td>
+                                    <td>
+                                        {% if stock.usable_stock <= 0 %}
+                                            <span class="badge badge-danger">Tükendi</span>
+                                        {% elif stock.usable_stock < stock.raw_material.safety_stock %}
+                                            <span class="badge badge-warning">Kritik Seviye</span>
+                                        {% else %}
+                                            <span class="badge badge-normal">Yeterli</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="no-data">
+                                    Depolarda henüz kayıtlı hammadde stoğu bulunmuyor.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dinamik Arama Scripti -->
+    <script>
+        function searchStocks() {
+            const input = document.getElementById("searchInput");
+            const filter = input.value.toLowerCase();
+            const rows = document.querySelectorAll(".stock-row");
+            
+            rows.forEach(row => {
+                const code = row.querySelector(".s-code").innerText.toLowerCase();
+                const name = row.querySelector(".s-name").innerText.toLowerCase();
+                const wh = row.querySelector(".s-wh").innerText.toLowerCase();
+                const lot = row.querySelector(".s-lot").innerText.toLowerCase();
+                
+                if (code.includes(filter) || name.includes(filter) || wh.includes(filter) || lot.includes(filter)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+    </script>
+</body>
+</html>

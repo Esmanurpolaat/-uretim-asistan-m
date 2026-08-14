@@ -758,7 +758,7 @@ def post_excel_preview(request: Request, file: UploadFile = File(...)):
     "/lines",
     response_class=HTMLResponse,
 )
-def get_production_lines(request: Request):
+def get_production_lines(request: Request, error: str = None):
     # Veritabanı bağlantısını açıyoruz.
     db = SessionLocal()
 
@@ -817,8 +817,157 @@ def get_production_lines(request: Request):
         context={
             "title": "Üretim Hatları - Üretim Asistanım",
             "lines": lines,
+            "error": error,
         },
     )
+
+# Yeni üretim hattı ekleme formu (GET)
+@app.get("/lines/new", response_class=HTMLResponse)
+def get_new_line_form(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="line_form.html",
+        context={"title": "Yeni Üretim Hattı Ekle", "line": None}
+    )
+
+# Yeni üretim hattı kaydetme (POST)
+@app.post("/lines/new")
+def post_new_line(
+    request: Request,
+    line_name: str = Form(...),
+    capacity: float = Form(...),
+    operator_name: str = Form(None)
+):
+    db = SessionLocal()
+    try:
+        # Mükerrer isim kontrolü
+        existing_line = db.query(models.ProductionLine).filter(models.ProductionLine.line_name == line_name).first()
+        if existing_line:
+            return templates.TemplateResponse(
+                request=request,
+                name="line_form.html",
+                context={
+                    "title": "Yeni Üretim Hattı Ekle",
+                    "line": None,
+                    "error": f"'{line_name}' adında bir üretim hattı zaten mevcut."
+                }
+            )
+        
+        new_line = models.ProductionLine(
+            line_name=line_name,
+            capacity=capacity,
+            operator_name=operator_name
+        )
+        db.add(new_line)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return templates.TemplateResponse(
+            request=request,
+            name="line_form.html",
+            context={
+                "title": "Yeni Üretim Hattı Ekle",
+                "line": None,
+                "error": f"Beklenmeyen bir hata oluştu: {str(e)}"
+            }
+        )
+    finally:
+        db.close()
+    return RedirectResponse(url="/lines", status_code=303)
+
+# Üretim hattı düzenleme formu (GET)
+@app.get("/lines/{id}/edit", response_class=HTMLResponse)
+def get_edit_line_form(request: Request, id: int):
+    db = SessionLocal()
+    try:
+        line = db.query(models.ProductionLine).filter(models.ProductionLine.id == id).first()
+        if not line:
+            raise HTTPException(status_code=404, detail="Üretim hattı bulunamadı")
+    finally:
+        db.close()
+    return templates.TemplateResponse(
+        request=request,
+        name="line_form.html",
+        context={"title": "Üretim Hattını Düzenle", "line": line}
+    )
+
+# Üretim hattı güncelleme (POST)
+@app.post("/lines/{id}/edit")
+def post_edit_line(
+    request: Request,
+    id: int,
+    line_name: str = Form(...),
+    capacity: float = Form(...),
+    operator_name: str = Form(None)
+):
+    db = SessionLocal()
+    try:
+        line = db.query(models.ProductionLine).filter(models.ProductionLine.id == id).first()
+        if not line:
+            raise HTTPException(status_code=404, detail="Üretim hattı bulunamadı")
+            
+        # Mükerrer isim kontrolü (kendi ismi hariç)
+        existing_line = db.query(models.ProductionLine).filter(
+            models.ProductionLine.line_name == line_name,
+            models.ProductionLine.id != id
+        ).first()
+        if existing_line:
+            return templates.TemplateResponse(
+                request=request,
+                name="line_form.html",
+                context={
+                    "title": "Üretim Hattını Düzenle",
+                    "line": line,
+                    "error": f"'{line_name}' adında başka bir üretim hattı zaten mevcut."
+                }
+            )
+            
+        # Güncelliyoruz
+        line.line_name = line_name
+        line.capacity = capacity
+        line.operator_name = operator_name
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return templates.TemplateResponse(
+            request=request,
+            name="line_form.html",
+            context={
+                "title": "Üretim Hattını Düzenle",
+                "line": line,
+                "error": f"Güncelleme sırasında hata oluştu: {str(e)}"
+            }
+        )
+    finally:
+        db.close()
+    return RedirectResponse(url="/lines", status_code=303)
+
+# Üretim hattı silme (POST)
+@app.post("/lines/{id}/delete")
+def post_delete_line(id: int):
+    db = SessionLocal()
+    try:
+        line = db.query(models.ProductionLine).filter(models.ProductionLine.id == id).first()
+        if not line:
+            raise HTTPException(status_code=404, detail="Üretim hattı bulunamadı")
+            
+        # Hatta atanmış aktif sipariş (Yeni, Planlandı, Üretimde) var mı kontrol et
+        active_orders_count = db.query(models.Order).filter(
+            models.Order.production_line == line.line_name,
+            models.Order.status.in_(["Yeni", "Planlandı", "Üretimde"])
+        ).count()
+        
+        if active_orders_count > 0:
+            return RedirectResponse(url=f"/lines?error=Bu+hatta+atanmis+aktif+siparisler+bulundugundan+silme+islemi+yapilamaz.", status_code=303)
+            
+        db.delete(line)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        return RedirectResponse(url=f"/lines?error=Silme+sirasinda+hata+olustu:+{str(e)}", status_code=303)
+    finally:
+        db.close()
+    return RedirectResponse(url="/lines", status_code=303)
 
 # Excel verilerini okuyup veritabanını güncelleyen (Upsert) POST rotası.
 @app.post("/imports/save")

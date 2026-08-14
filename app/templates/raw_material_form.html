@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        /* Genel Arayüz Tasarımı */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 24px;
+        }
+
+        /* Form Konteyneri */
+        .form-container {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Hata Mesajı Kutusu */
+        .error-alert {
+            background-color: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 25px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Form Düzeni (Grid) */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 600px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Giriş Grupları */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Tüm Genişliği Kaplayan Alanlar */
+        .full-width {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 600px) {
+            .full-width {
+                grid-column: span 1;
+            }
+        }
+
+        label {
+            font-size: 13px;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        input, select {
+            padding: 10px 14px;
+            border-radius: 4px;
+            border: 1px solid #cbd5e1;
+            font-size: 13.5px;
+            color: #0f172a;
+            background-color: #ffffff;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+        }
+
+        /* Butonlar */
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 25px;
+        }
+
+        .btn-save {
+            background-color: #0f172a;
+            color: white;
+            border: 1px solid #0f172a;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-save:hover { background-color: #1e293b; }
+
+        .btn-cancel {
+            background-color: white;
+            color: #475569;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-cancel:hover { background-color: #f1f5f9; color: #0f172a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Rota Başlığı (Dinamik) -->
+        <h1>{% if raw_material %}Hammadde Düzenle{% else %}Yeni Hammadde Ekle{% endif %}</h1>
+
+        <div class="form-container">
+            <!-- Hata var ise gösterilen şerit -->
+            {% if error %}
+                <div class="error-alert">
+                    ⚠️ Hata: {{ error }}
+                </div>
+            {% endif %}
+
+            <!-- Rota Formu -->
+            <form method="post" action="{% if raw_material %}/raw-materials/{{ raw_material.id }}/edit{% else %}/raw-materials/new{% endif %}">
+                <div class="form-grid">
+                    
+                    <!-- Hammadde Kodu -->
+                    <div class="form-group">
+                        <label for="material_code">Hammadde Kodu *</label>
+                        <input type="text" id="material_code" name="material_code" 
+                               placeholder="Örn: RAW-PP01" required
+                               value="{{ raw_material.material_code if raw_material else '' }}">
+                    </div>
+
+                    <!-- Hammadde Adı -->
+                    <div class="form-group">
+                        <label for="material_name">Hammadde Adı *</label>
+                        <input type="text" id="material_name" name="material_name" 
+                               placeholder="Örn: Polipropilen Granül" required
+                               value="{{ raw_material.material_name if raw_material else '' }}">
+                    </div>
+
+                    <!-- Kategori / Tip -->
+                    <div class="form-group">
+                        <label for="material_type">Kategori / Tip</label>
+                        <input type="text" id="material_type" name="material_type" 
+                               placeholder="Örn: Polimer, Boya, Ambalaj"
+                               value="{{ raw_material.material_type if raw_material and raw_material.material_type else '' }}">
+                    </div>
+
+                    <!-- Ölçü Birimi -->
+                    <div class="form-group">
+                        <label for="unit">Ölçü Birimi</label>
+                        <select id="unit" name="unit">
+                            <option value="Kg" {% if raw_material and raw_material.unit == 'Kg' %}selected{% endif %}>Kg</option>
+                            <option value="Adet" {% if raw_material and raw_material.unit == 'Adet' %}selected{% endif %}>Adet</option>
+                            <option value="Metre" {% if raw_material and raw_material.unit == 'Metre' %}selected{% endif %}>Metre</option>
+                            <option value="Rulo" {% if raw_material and raw_material.unit == 'Rulo' %}selected{% endif %}>Rulo</option>
+                        </select>
+                    </div>
+
+                    <!-- Minimum Stok -->
+                    <div class="form-group">
+                        <label for="min_stock">Minimum Stok Miktarı</label>
+                        <input type="number" step="any" id="min_stock" name="min_stock" 
+                               placeholder="Örn: 10000"
+                               value="{{ raw_material.min_stock if raw_material and raw_material.min_stock else '0' }}">
+                    </div>
+
+                    <!-- Emniyet Stoğu -->
+                    <div class="form-group">
+                        <label for="safety_stock">Emniyet Stoğu Miktarı</label>
+                        <input type="number" step="any" id="safety_stock" name="safety_stock" 
+                               placeholder="Örn: 2000"
+                               value="{{ raw_material.safety_stock if raw_material and raw_material.safety_stock else '0' }}">
+                    </div>
+
+                    <!-- Minimum Sipariş Miktarı (MOQ) -->
+                    <div class="form-group">
+                        <label for="min_order_qty">Min. Sipariş Miktarı (Tedarikçi Limiti)</label>
+                        <input type="number" step="any" id="min_order_qty" name="min_order_qty" 
+                               placeholder="Örn: 5000"
+                               value="{{ raw_material.min_order_qty if raw_material and raw_material.min_order_qty else '0' }}">
+                    </div>
+
+                    <!-- Tedarik Süresi (Lead Time) -->
+                    <div class="form-group">
+                        <label for="lead_time">Tedarik Süresi (Gün Bazında)</label>
+                        <input type="number" id="lead_time" name="lead_time" 
+                               placeholder="Örn: 5"
+                               value="{{ raw_material.lead_time if raw_material and raw_material.lead_time else '0' }}">
+                    </div>
+
+                    <!-- Durum (Sadece Düzenleme Modunda Görünür) -->
+                    {% if raw_material %}
+                    <div class="form-group full-width">
+                        <label for="is_active">Durum</label>
+                        <select id="is_active" name="is_active">
+                            <option value="true" {% if raw_material.is_active %}selected{% endif %}>Aktif</option>
+                            <option value="false" {% if not raw_material.is_active %}selected{% endif %}>Pasif</option>
+                        </select>
+                    </div>
+                    {% endif %}
+
+                </div>
+
+                <!-- Butonlar -->
+                <div class="btn-group">
+                    <a href="/raw-materials" class="btn-cancel">İptal</a>
+                    <button type="submit" class="btn-save">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

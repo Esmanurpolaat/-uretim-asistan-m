@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <style>
+        /* Genel Arayüz Tasarımı */
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8fafc;
+            color: #0f172a;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: #0f172a;
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Form Konteyneri */
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+        }
+
+        /* Hata Mesajı Kutusu */
+        .error-alert {
+            background-color: #fee2e2;
+            border: 1px solid #fca5a5;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 12.5px;
+            font-weight: 600;
+        }
+
+        /* Giriş Grupları */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-size: 12.5px;
+            color: #475569;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input {
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
+            font-size: 13.5px;
+            color: #0f172a;
+            background-color: #ffffff;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+        }
+
+        /* Butonlar */
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 1px solid #cbd5e1;
+            padding-top: 20px;
+            margin-top: 10px;
+        }
+
+        .btn-save {
+            background-color: #0f172a;
+            color: white;
+            border: 1px solid #0f172a;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-save:hover { background-color: #1e293b; }
+
+        .btn-cancel {
+            background-color: white;
+            color: #475569;
+            text-decoration: none;
+            padding: 10px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 11px;
+            border: 1px solid #cbd5e1;
+            transition: all 0.2s ease;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .btn-cancel:hover { background-color: #f1f5f9; color: #0f172a; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ title }}</h1>
+
+        <div class="form-container">
+            {% if error %}
+                <div class="error-alert">
+                    {{ error }}
+                </div>
+            {% endif %}
+
+            <form method="post" action="{% if line %}/lines/{{ line.id }}/edit{% else %}/lines/new{% endif %}">
+                
+                <!-- Üretim Hattı Adı -->
+                <div class="form-group">
+                    <label for="line_name">Üretim Hattı Adı *</label>
+                    <input type="text" id="line_name" name="line_name" 
+                           placeholder="Örn: SPL-04" 
+                           value="{{ line.line_name if line else '' }}" required>
+                </div>
+
+                <!-- Günlük Üretim Kapasitesi -->
+                <div class="form-group">
+                    <label for="capacity">Günlük Kapasite (kg / gün) *</label>
+                    <input type="number" step="any" id="capacity" name="capacity" 
+                           placeholder="Örn: 10000" 
+                           value="{{ line.capacity if line else '' }}" required min="1">
+                </div>
+
+                <!-- Sorumlu Operatör Adı -->
+                <div class="form-group">
+                    <label for="operator_name">Sorumlu Operatör Adı</label>
+                    <input type="text" id="operator_name" name="operator_name" 
+                           placeholder="Örn: Mehmet Demir" 
+                           value="{{ line.operator_name if line else '' }}">
+                </div>
+
+                <!-- Butonlar -->
+                <div class="btn-group">
+                    <a href="/lines" class="btn-cancel">İptal</a>
+                    <button type="submit" class="btn-save">Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

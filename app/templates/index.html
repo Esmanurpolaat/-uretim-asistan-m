@@ -86,7 +86,7 @@
             padding: 12px 16px;
             color: #94a3b8;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: 600;
             font-size: 14.5px;
             transition: all 0.2s ease;
@@ -116,7 +116,7 @@
             padding: 16px 24px;
             border-radius: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-            border: 1px solid #e2e8f0;
+            border: 1px solid #cbd5e1;
             display: flex;
             flex-wrap: wrap;
             gap: 16px;
@@ -234,8 +234,8 @@
         .chart-container {
             background: white;
             padding: 24px;
-            border-radius: 16px;
-            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -265,8 +265,8 @@
         .risk-container {
             background: white;
             padding: 24px;
-            border-radius: 16px;
-            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
             display: flex;
             flex-direction: column;
             box-shadow: 0 1px 3px rgba(0,0,0,0.01);
@@ -287,7 +287,7 @@
 
         .risk-card {
             padding: 14px;
-            border-radius: 10px;
+            border-radius: 6px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -302,8 +302,8 @@
         .table-container {
             background: white;
             padding: 24px;
-            border-radius: 16px;
-            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1;
             box-shadow: 0 1px 3px rgba(0,0,0,0.01);
         }
 
@@ -331,12 +331,12 @@
             font-size: 12px;
             text-transform: uppercase;
             padding: 12px 16px;
-            border-bottom: 2px solid #e2e8f0;
+            border-bottom: 2px solid #cbd5e1;
         }
 
         td {
             padding: 12px 16px;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid #cbd5e1;
             color: #334155;
             font-size: 13.5px;
         }
@@ -347,14 +347,16 @@
         .badge {
             display: inline-block;
             padding: 4px 8px;
-            border-radius: 9999px;
+            border-radius: 4px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
-        .badge-yeni { background-color: #f1f5f9; color: #0d2b55; }
-        .badge-planlandi { background-color: #fef3c7; color: #b45309; }
-        .badge-uretimde { background-color: #dbeafe; color: #2563eb; }
-        .badge-tamamlandi { background-color: #d1fae5; color: #065f46; }
+        .badge-yeni { background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+        .badge-planlandi { background-color: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+        .badge-uretimde { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+        .badge-tamamlandi { background-color: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
 
         /* Modal Stilleri */
         .modal {
@@ -428,7 +430,7 @@
                         <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
                     </svg>
-                    <span class="menu-text">Genel Durum</span>
+                    <span class="menu-text">Kontrol Paneli</span>
                 </a>
                 <a href="/reports" class="menu-item">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -436,37 +438,46 @@
                         <line x1="12" y1="20" x2="12" y2="4"></line>
                         <line x1="6" y1="20" x2="6" y2="14"></line>
                     </svg>
-                    <span class="menu-text">Performans Raporları</span>
+                    <span class="menu-text">Performans Raporlama</span>
                 </a>
                 <a href="/orders" class="menu-item">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
                         <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
                     </svg>
-                    <span class="menu-text">Sipariş Takibi</span>
+                    <span class="menu-text">Sipariş Yönetimi</span>
                 </a>
                 <a href="/lines" class="menu-item">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="2" y="2" width="20" height="8" rx="2.18" ry="2.18"></rect>
                         <rect x="2" y="14" width="20" height="8" rx="2.18" ry="2.18"></rect>
                     </svg>
-                    <span class="menu-text">Üretim Hatları</span>
+                    <span class="menu-text">Kapasite ve Hat İzleme</span>
                 </a>
-                <a href="/imports/upload" class="menu-item">
+                <a href="/planning" class="menu-item">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                        <polyline points="17 8 12 3 7 8"></polyline>
-                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
                     </svg>
-                    <span class="menu-text">Excel Sipariş Yükle</span>
+                    <span class="menu-text">Üretim Planlama ve Çizelgeleme</span>
                 </a>
+                <a href="/production" class="menu-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span class="menu-text">Üretim Onay Sistemi (MES)</span>
+                </a>
+
                                 <a href="/products" class="menu-item">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
                         <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
                         <line x1="12" y1="22.08" x2="12" y2="12"></line>
                     </svg>
-                    <span class="menu-text">Ürün Kataloğu</span>
+                    <span class="menu-text">Ürün Portföyü</span>
                 </a>
                                 <a href="/raw-materials" class="menu-item">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -474,7 +485,7 @@
                         <polyline points="2 17 12 22 22 17"></polyline>
                         <polyline points="2 12 12 17 22 12"></polyline>
                     </svg>
-                    <span class="menu-text">Hammadde Kartları</span>
+                    <span class="menu-text">Hammadde Kataloğu</span>
                 </a>
                 <a href="/stocks" class="menu-item">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -482,7 +493,7 @@
                         <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
                         <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path>
                     </svg>
-                    <span class="menu-text">Depo Stokları</span>
+                    <span class="menu-text">Stok Kontrol ve Envanter</span>
                 </a>
                 <a href="/recipes" class="menu-item">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -492,7 +503,23 @@
                         <line x1="16" y1="17" x2="8" y2="17"></line>
                         <polyline points="10 9 9 9 8 9"></polyline>
                     </svg>
-                    <span class="menu-text">Ürün Reçeteleri (BOM)</span>
+                    <span class="menu-text">Ürün Reçete Yönetimi (BOM)</span>
+                </a>
+                <a href="/mrp" class="menu-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                        <path d="M12 8v4"></path>
+                        <path d="M12 16h.01"></path>
+                    </svg>
+                    <span class="menu-text">Malzeme İhtiyaç Planlama (MRP)</span>
+                </a>
+                <a href="/mrp" class="menu-item">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path>
+                        <path d="M12 8v4"></path>
+                        <path d="M12 16h.01"></path>
+                    </svg>
+                    <span class="menu-text">Malzeme Planlama (MRP)</span>
                 </a>
             </div>
         </div>
@@ -501,18 +528,18 @@
         <div class="main-content">
             
             <!-- Karşılama ve Canlı Durum Şeridi -->
-            <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 18px 24px; border-radius: 6px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 18px 24px; border-radius: 6px; border: 1px solid #cbd5e1; box-shadow: 0 1px 3px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
                 <div>
-                    <h2 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Günlük Operasyon Merkezi</h2>
+                    <h2 style="margin: 0; font-size: 18px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">Operasyonel Kontrol Merkezi</h2>
                     <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">{{ formatted_date }}</div>
                     <div style="display: flex; gap: 12px; align-items: center; margin-top: 8px; flex-wrap: wrap;">
                         <span style="font-size: 11.5px; color: #475569; display: inline-flex; align-items: center; gap: 4px;">
                             <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #dc2626; display: inline-block;"></span>
-                            <strong>{{ delayed_count }}</strong> sipariş gecikmiş durumda
+                            Geciken Sipariş: <strong>{{ delayed_count }}</strong>
                         </span>
                         <span style="font-size: 11.5px; color: #475569; display: inline-flex; align-items: center; gap: 4px;">
                             <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #ea580c; display: inline-block;"></span>
-                            <strong>{{ today_completing_count }}</strong> sipariş bugün tamamlanacak
+                            Bugün Tamamlanacak Sipariş: <strong>{{ today_completing_count }}</strong>
                         </span>
                         <span style="font-size: 11.5px; color: #475569; display: inline-flex; align-items: center; gap: 4px;">
                             <span style="width: 6px; height: 6px; border-radius: 50%; background-color: #2563eb; display: inline-block;"></span>
@@ -521,14 +548,14 @@
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
-                    <a href="/orders/new" style="display: inline-flex; align-items: center; text-decoration: none; color: white; background-color: #0f172a; font-weight: 600; font-size: 11.5px; padding: 8px 14px; border-radius: 6px; transition: all 0.2s ease; border: 1px solid #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
-                        + Yeni Sipariş
+                    <a href="/orders/new" style="display: inline-flex; align-items: center; text-decoration: none; color: white; background-color: #0f172a; font-weight: 700; font-size: 11px; padding: 10px 16px; border-radius: 6px; transition: all 0.2s ease; border: 1px solid #0f172a; box-shadow: 0 1px 2px rgba(0,0,0,0.05); text-transform: uppercase; letter-spacing: 0.5px;">
+                        Sipariş Kaydı
                     </a>
-                    <a href="/imports/upload" style="display: inline-flex; align-items: center; text-decoration: none; color: #475569; background-color: white; font-weight: 600; font-size: 11.5px; padding: 8px 14px; border-radius: 6px; border: 1px solid #cbd5e1; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                        Excel Yükle
+                    <a href="/imports/upload" style="display: inline-flex; align-items: center; text-decoration: none; color: #475569; background-color: white; font-weight: 700; font-size: 11px; padding: 10px 16px; border-radius: 6px; border: 1px solid #cbd5e1; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.02); text-transform: uppercase; letter-spacing: 0.5px;">
+                        Excel Veri Yükle
                     </a>
-                    <a href="/planning" style="display: inline-flex; align-items: center; text-decoration: none; color: #475569; background-color: white; font-weight: 600; font-size: 11.5px; padding: 8px 14px; border-radius: 6px; border: 1px solid #cbd5e1; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                        Üretim Planla
+                    <a href="/planning" style="display: inline-flex; align-items: center; text-decoration: none; color: #475569; background-color: white; font-weight: 700; font-size: 11px; padding: 10px 16px; border-radius: 6px; border: 1px solid #cbd5e1; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(0,0,0,0.02); text-transform: uppercase; letter-spacing: 0.5px;">
+                        Üretim Planlama
                     </a>
                 </div>
             </div>
@@ -559,7 +586,7 @@
             <div class="stats-badges-row">
                 <!-- Açık Sipariş -->
                 <div class="mini-stat-badge mini-stat-badge-clickable" id="card-open" onclick="filterByCard('open')" style="border-left: 4px solid #0f172a; cursor: pointer; padding: 12px 16px;">
-                    <span class="badge-title" style="color: #0f172a;">Açık Sipariş</span>
+                    <span class="badge-title" style="color: #0f172a;">Aktif Sipariş Hacmi</span>
                     <span class="badge-value">{{ open_count }}</span>
                     <span style="font-size: 11px; color: #475569; font-weight: 600; display: block; margin-top: 2px;">{{ "{:,.0f}".format(open_weight)|replace('.', ',') }} kg</span>
                     <span style="font-size: 9.5px; color: #64748b; font-weight: 600; display: block; margin-top: 2px;">{{ in_production_count }} üretimde • {{ planned_count }} planlandı</span>
@@ -570,7 +597,7 @@
                 </div>
                 <!-- Geciken Sipariş -->
                 <div class="mini-stat-badge mini-stat-badge-clickable" id="card-delayed" onclick="filterByCard('delayed')" style="border-left: 4px solid #dc2626; cursor: pointer; padding: 12px 16px;">
-                    <span class="badge-title" style="color: #dc2626;">Geciken Sipariş</span>
+                    <span class="badge-title" style="color: #dc2626;">Geciken Sipariş Hacmi</span>
                     <span class="badge-value">{{ delayed_count }}</span>
                     <span style="font-size: 11px; color: #475569; font-weight: 600; display: block; margin-top: 2px;">{{ "{:,.0f}".format(delayed_weight)|replace('.', ',') }} kg</span>
                     <span style="font-size: 9.5px; color: #dc2626; font-weight: bold; display: block; margin-top: 2px;">En yüksek gecikme: {{ max_delay_days }} gün</span>
@@ -580,7 +607,7 @@
                 </div>
                 <!-- 7 Günde Termin -->
                 <div class="mini-stat-badge mini-stat-badge-clickable" id="card-upcoming_7" onclick="filterByCard('upcoming_7')" style="border-left: 4px solid #ea580c; cursor: pointer; padding: 12px 16px;">
-                    <span class="badge-title" style="color: #ea580c;">7 Günde Termin</span>
+                    <span class="badge-title" style="color: #ea580c;">7 Günlük Termin Yakınlaşımı</span>
                     <span class="badge-value">{{ upcoming_7_count }}</span>
                     <span style="font-size: 11px; color: #475569; font-weight: 600; display: block; margin-top: 2px;">{{ "{:,.0f}".format(upcoming_7_weight)|replace('.', ',') }} kg</span>
                     <span style="font-size: 9.5px; color: #ea580c; font-weight: bold; display: block; margin-top: 2px;">{{ unplanned_upcoming_count }} sipariş plansız</span>
@@ -591,7 +618,7 @@
                 </div>
                 <!-- Bugün Tamamlanacak -->
                 <div class="mini-stat-badge mini-stat-badge-clickable" id="card-today" onclick="filterByCard('today')" style="border-left: 4px solid #16a34a; cursor: pointer; padding: 12px 16px;">
-                    <span class="badge-title" style="color: #16a34a;">Bugün Tamamlanacak</span>
+                    <span class="badge-title" style="color: #16a34a;">Bugünkü Teslimat Yükümlülüğü</span>
                     <span class="badge-value">{{ today_completing_count }}</span>
                     <span style="font-size: 11px; color: #475569; font-weight: 600; display: block; margin-top: 2px;">{{ "{:,.0f}".format(today_completing_weight)|replace('.', ',') }} kg</span>
                     <span style="font-size: 9.5px; color: #16a34a; font-weight: bold; display: block; margin-top: 2px;">Yarın: {{ tomorrow_completing_count }} sipariş</span>
@@ -603,7 +630,7 @@
 
             <!-- Bu Ayın Özeti Şeridi -->
             <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-                <div style="font-size: 12px; font-weight: 700; color: #0f172a;">📊 Bu Ayın Özeti</div>
+                <div style="font-size: 12px; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px;">Bu Ayın Özeti</div>
                 <div style="display: flex; gap: 24px; flex-wrap: wrap;">
                     <div style="font-size: 12px; color: #475569;">
                         <span>Bu ay tamamlanan:</span> <strong style="color: #0f172a;">{{ this_month_completed_count }} sipariş / {{ "{:,.0f}".format(this_month_completed_qty)|replace('.', ',') }} kg</strong>
@@ -625,7 +652,7 @@
                 <!-- Sol Panel: Bugünün Üretim Planı -->
                 <div class="table-container" style="padding: 16px; margin-bottom: 0;">
                     <div class="table-title" style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                        <span>📋 Bugünün Üretim Planı</span>
+                        <span>Bugünün Üretim Planı</span>
                     </div>
                     <div class="table-responsive">
                         <table>
@@ -668,15 +695,13 @@
                     </div>
                 </div>
 
-                <!-- Sağ Panel: Öncelikli Aksiyonlar -->
+                <!-- Axapta / MES Öncelikli Eylemler -->
                 <div class="table-container" style="padding: 16px; margin-bottom: 0;">
-                    <div class="table-title" style="margin-bottom: 12px;">🚨 Öncelikli Aksiyonlar</div>
+                    <div class="table-title" style="margin-bottom: 12px;">Öncelikli Aksiyonlar</div>
                     <div style="display: flex; flex-direction: column; gap: 10px;">
                         {% for action in priority_actions %}
                         <div style="display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: 6px; background-color: {% if action.type == 'danger' %}#fff5f5{% elif action.type == 'warning' %}#fffbeb{% else %}#f0fdf4{% endif %}; border: 1px solid {% if action.type == 'danger' %}#fee2e2{% elif action.type == 'warning' %}#fef3c7{% else %}#dcfce7{% endif %};">
-                            <span style="font-size: 14px; margin-top: 1px;">
-                                {% if action.type == 'danger' %}🔴{% elif action.type == 'warning' %}🟠{% else %}🟢{% endif %}
-                            </span>
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background-color: {% if action.type == 'danger' %}#dc2626{% elif action.type == 'warning' %}#ea580c{% else %}#16a34a{% endif %}; display: inline-block; margin-top: 5px; flex-shrink: 0;"></span>
                             <div style="font-size: 11.5px; line-height: 1.4; color: #1e293b; font-weight: 600;">
                                 {{ action.text }}
                             </div>
@@ -689,7 +714,7 @@
             <!-- Sipariş Takip & Detay Listesi Tablosu -->
             <div class="table-container">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                    <div class="table-title" id="table-title-text" style="margin-bottom: 0;">Sipariş Takip &amp; Detay Listesi</div>
+                    <div class="table-title" id="table-title-text" style="margin-bottom: 0;">Sipariş Takip ve Detaylı İzleme Paneli</div>
                     <button onclick="clearCardFilter()" id="clear-filter-btn" style="display: none; background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 4px; padding: 4px 10px; font-size: 11px; font-weight: 700; color: #475569; cursor: pointer; transition: all 0.2s ease;">
                         Tüm Açık Siparişleri Göster
                     </button>
@@ -804,7 +829,7 @@
                 // Filtreyi kaldır
                 currentCardFilter = null;
                 rows.forEach(r => r.style.display = '');
-                tableTitle.innerText = "Sipariş Takip & Detay Listesi";
+                tableTitle.innerText = "Sipariş Takip ve Detaylı İzleme Paneli";
                 clearBtn.style.display = 'none';
             } else {
                 currentCardFilter = cardType;
@@ -817,10 +842,10 @@
                 }
                 
                 let title = "Sipariş Listesi";
-                if (cardType === 'open') title = "Açık Siparişler";
-                else if (cardType === 'delayed') title = "Geciken Siparişler";
-                else if (cardType === 'upcoming_7') title = "7 Günde Termini Gelen Siparişler";
-                else if (cardType === 'today') title = "Bugün Tamamlanacak Siparişler";
+                if (cardType === 'open') title = "Aktif Sipariş Portföyü";
+                else if (cardType === 'delayed') title = "Termini Geciken Siparişler";
+                else if (cardType === 'upcoming_7') title = "7 Günlük Yakınlaşan Terminler";
+                else if (cardType === 'today') title = "Bugünkü Teslimat Yükümlülükleri";
                 
                 tableTitle.innerText = title;
                 clearBtn.style.display = 'inline-block';
